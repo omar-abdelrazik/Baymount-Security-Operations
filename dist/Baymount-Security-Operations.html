@@ -105,7 +105,9 @@ body{
   overflow:hidden; -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
   transition:background .8s var(--ease), color .8s var(--ease);
   font-size:14px; line-height:1.55;
+  -webkit-tap-highlight-color:transparent; overscroll-behavior:none;
 }
+.tb-break{ display:none; }
 [hidden]{ display:none !important; }
 button{ font-family:inherit; color:inherit; background:none; border:none; cursor:pointer; padding:0; }
 input{ font-family:inherit; }
@@ -311,6 +313,8 @@ body[data-focus="supervision"] #g-sectors polygon, #g-sectors.on polygon{ pointe
 .route .halo{ stroke:var(--rc,#8a6a3a); stroke-opacity:.16; stroke-width:9; stroke-dasharray:none; }
 @keyframes routeflow{ to{ stroke-dashoffset:-46; } }
 .route .flow{ animation:routeflow 16s linear infinite; }
+.route{ transition:opacity .5s var(--ease); }
+.route.dim{ opacity:.06; }
 
 /* residential / construction tints */
 #g-zones polygon{ vector-effect:non-scaling-stroke; }
@@ -408,8 +412,8 @@ body.layer-mobility .marker.cat-supervisor.has-mob .m-mob{ display:grid; }
   font-size:9px; font-weight:700; color:var(--ink-2); background:color-mix(in srgb, var(--surface) 85%, transparent);
   padding:1px 5px; border-radius:5px; border:1px solid var(--line);
 }
-.marker.cat-generator .m-pin{ width:26px; height:26px; border-radius:8px; background:var(--marker-bg); color:#f4c948; border:none; box-shadow:0 3px 10px rgba(24,27,32,.28); }
-.marker.cat-generator .m-pin svg{ width:14px; height:14px; }
+.marker.cat-industrial .m-pin{ width:26px; height:26px; border-radius:8px; background:var(--marker-bg); color:#dcb268; border:1px solid transparent; box-shadow:0 3px 10px rgba(24,27,32,.28); }
+.marker.cat-industrial .m-pin svg{ width:14px; height:14px; }
 
 /* sector label chips */
 .sector-chip .m-pin{
@@ -447,7 +451,7 @@ body[data-selsector] .marker.cat-supervisor:not(.insec) .m-body{ opacity:.25; }
 body:not(.layer-services) .marker.lyr-services,
 body:not(.layer-gates) .marker.lyr-gates,
 body:not(.layer-supervisors) .marker.cat-supervisor,
-body:not(.layer-generators) .marker.cat-generator,
+body:not(.layer-construction) .marker.cat-industrial,
 body:not(.layer-construction) .marker.cat-mastaba{ display:none; }
 
 /* pulse */
@@ -692,6 +696,11 @@ table.mx{ width:100%; border-collapse:collapse; font-size:12.5px; }
   width:38px; height:38px; border-radius:10px; background:var(--ink); color:var(--paper); display:grid; place-items:center; flex:none;
   transition:background .8s,color .8s;
 }
+/* raw <svg><use> icons need explicit stroke styling — otherwise they render
+   as filled black shapes and disappear on dark chips in light mode */
+.org-node .on-ic svg, .mx .locname .lic svg{
+  fill:none; stroke:currentColor; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round;
+}
 .org-node .on-ic svg{ width:18px; height:18px; }
 .org-node.acc .on-ic{ background:var(--accent); color:#fff; }
 .org-node .on-t b{ font-size:14px; font-weight:700; display:flex; align-items:center; gap:8px; }
@@ -714,7 +723,7 @@ table.mx{ width:100%; border-collapse:collapse; font-size:12.5px; }
 .mg-list li:last-child{ border:none; }
 .mg-list .ic{ color:var(--mut); font-size:15px; }
 .mg-list b{ margin-inline-start:auto; font-variant-numeric:tabular-nums; font-weight:700; }
-.dayonly-tag{ font-size:10px; color:#fff; background:var(--mut); border-radius:5px; padding:2px 7px; }
+
 
 /* =====================================================================
    PRESENTATION MODE
@@ -750,7 +759,7 @@ body.presenting #topbar{ transform:translateY(-100%); }
 }
 #presentBar .pb-btn{
   height:38px; padding:0 18px; border-radius:99px; font-size:13px; font-weight:700; color:var(--ink-2);
-  display:inline-flex; align-items:center; gap:9px; transition:background .2s, color .2s;
+  display:inline-flex; align-items:center; gap:9px; transition:background .2s, color .2s; white-space:nowrap;
 }
 #presentBar .pb-btn:hover{ background:var(--ivory); }
 #presentBar .pb-btn.next{ background:var(--accent); color:#fff; }
@@ -800,33 +809,119 @@ body.editing .marker .m-pin{ outline:1.5px dashed var(--accent); outline-offset:
 #toast.on{ opacity:1; transform:translateX(50%); }
 
 /* =====================================================================
-   RESPONSIVE
+   RESPONSIVE — laptops → iPads → phones
    ===================================================================== */
 @media (max-width:1750px){
   .tb-conf{ display:none; }
 }
-@media (max-width:1240px){
-  #searchWrap{ width:216px; }
+/* smaller laptops: view pills go icon-only */
+@media (max-width:1460px){
+  .ps-view .pl{ display:none; }
+  .ps-view button{ padding:6px 11px; }
+  #topbar{ gap:8px; }
 }
-@media (max-width:1080px){
-  #topbar{ flex-wrap:wrap; height:auto; padding:8px 14px; gap:10px; }
-  .tb-sp{ display:none; }
-  #shiftToggle{ order:3; margin-inline-start:auto; }
-  .tb-actions{ order:4; margin-inline-start:auto; }
-  #detail{ width:300px; }
+/* compact laptops / iPad landscape: everything icon-first */
+@media (max-width:1330px){
+  .ps-focus .pl, #btnMatrix .pl, #btnMgmt .pl{ display:none; }
+  .ps-focus button{ padding:6px 11px; }
+  .tb-btn{ padding:0 11px; }
+  #searchWrap{ width:212px; }
+  #detail{ width:304px; }
+}
+/* iPad portrait / narrow windows: two-row command bar */
+@media (max-width:940px){
+  #topbar{ flex-wrap:wrap; height:auto; padding:8px 12px 9px; row-gap:9px; }
+  .tb-sep, .tb-sp{ display:none; }
+  .brand{ order:0; }
+  .tb-actions{ order:1; margin-inline-start:auto; }
+  .tb-break{ display:block; order:2; width:100%; height:0; }
+  .pillset{ order:3; }
+  #shiftToggle{ order:5; margin-inline-start:auto; box-shadow:none; }
   .mg-cols{ grid-template-columns:1fr; }
 }
+/* phones + small tablets */
 @media (max-width:760px){
-  body{ overflow:auto; }
-  #layersPanel{ width:160px; }
+  .brand-t .b{ display:none; }
+  .brand-mark{ width:30px; height:30px; border-radius:8px; }
+  .brand-t .a{ font-size:12.5px; }
+  #shiftToggle button{ min-width:88px; padding:5px 12px; font-size:12px; }
+  #shiftToggle button .cnt{ min-width:26px; padding:2px 6px; }
+  .tb-btn{ height:34px; }
+
+  #searchWrap{ top:12px; inset-inline:12px; width:auto; }
+  #layersPanel{ top:62px; inset-inline-start:12px; width:158px; }
   #legend{ display:none; }
-  #searchWrap{ width:calc(100% - 32px); }
-  #detail{ inset-inline:10px; width:auto; top:auto; bottom:46px; max-height:58vh; }
-  #presentCard{ inset-inline:14px; width:auto; top:14px; padding:16px 18px; }
-  .pc-title{ font-size:18px; }
-  .istat{ min-width:118px; padding-inline-end:18px; }
-  #zoomCtl{ bottom:46px; }
+  #zoomCtl{ bottom:46px; inset-inline-end:12px; }
   #tiltCtl{ display:none !important; }
+
+  #detail{ inset-inline:10px; width:auto; top:auto; bottom:44px; max-height:56vh; border-radius:14px 14px 10px 10px; }
+
+  #presentCard{ inset-inline:12px; width:auto; top:12px; padding:15px 17px 14px; max-height:44vh; overflow:auto; }
+  .pc-title{ font-size:17px; margin-bottom:6px; }
+  .pc-body{ font-size:12px; line-height:1.75; }
+  .pc-stat b{ font-size:40px; }
+  .pc-summary{ gap:8px; }
+  .pc-summary .cell{ padding:9px 11px; }
+  .pc-summary .cell b{ font-size:22px; }
+  #presentBar{ bottom:12px; padding:6px; gap:3px; max-width:calc(100% - 24px); }
+  #presentBar .pb-btn{ height:34px; padding:0 12px; font-size:12px; }
+  #pbExit .pl{ display:none; }
+  .pb-dots{ padding:0 6px; gap:4px; }
+
+  #statusbar{ height:34px; gap:10px; padding:0 12px; font-size:10.5px; overflow:hidden; }
+  #sbDailyWrap, #sbSep2, #posNote{ display:none; }
+
+  .sheet{ padding:10px; }
+  .sheet-card{ border-radius:14px; }
+  .sheet-head{ padding:14px 16px; }
+  .sheet-title{ font-size:14.5px; }
+  .sheet-sub{ display:none; }
+  .sheet-body{ padding:14px 16px 20px; overflow-x:auto; }
+  table.mx{ min-width:640px; }
+  .mx th{ top:-14px; }
+  .mg-grid{ grid-template-columns:repeat(2,1fr); gap:9px; }
+  .mg-stat{ padding:12px 14px; }
+  .mg-stat b{ font-size:28px; }
+  .org-node{ padding:11px 14px; }
+  .org-cnt{ font-size:18px; }
+
+  #intro .intro-content{ padding:0 22px; max-width:100%; }
+  #intro h1{ font-size:clamp(32px,9.5vw,44px); }
+  .intro-sub{ margin-bottom:30px; letter-spacing:.2em; }
+  .intro-stats{ margin-bottom:32px; }
+  .istat{ min-width:104px; padding:4px 16px 4px 6px; }
+  .istat b{ font-size:34px; }
+  .istat span{ font-size:11px; }
+  .intro-foot{ gap:12px; }
+  .intro-hint{ display:none; }
+  #enterApp{ padding:11px 22px; font-size:13.5px; }
+  .chip-conf{ padding:6px 12px; font-size:11px; }
+}
+/* very small phones */
+@media (max-width:430px){
+  .brand-t{ display:none; }
+  #btnPresent .pl{ display:none; }
+  #topbar{ row-gap:7px; padding:7px 10px 8px; gap:7px; }
+  .pillset{ padding:2px; }
+  .pillset button{ padding:5px 8px; }
+  #shiftToggle button{ min-width:74px; padding:4px 8px; font-size:11.5px; gap:6px; }
+  #shiftToggle button .cnt{ min-width:24px; padding:1px 5px; font-size:10px; }
+  #layersPanel{ width:150px; }
+  .lg-note{ font-size:9px; }
+  #statusbar{ justify-content:center; }
+  #sbShiftWrap, #statusbar .sb-sep{ display:none; }
+}
+/* short landscape phones: reclaim vertical space */
+@media (max-height:520px){
+  #topbar{ padding:5px 10px 6px; row-gap:5px; }
+  .tb-btn{ height:31px; }
+  #searchWrap{ display:none; }
+  #layersPanel{ top:10px; }
+  #legend{ display:none; }
+  #statusbar{ display:none; }
+  #zoomCtl{ bottom:12px; }
+  #presentCard{ max-height:62vh; overflow:auto; width:min(330px, 60vw); }
+  #presentBar{ bottom:10px; }
 }
 
 /* =====================================================================
@@ -905,6 +1000,7 @@ body.editing .marker .m-pin{ outline:1.5px dashed var(--accent); outline-offset:
   <symbol id="i-box" viewBox="0 0 24 24"><path d="M12 3.5l7.5 4v9L12 20.5l-7.5-4v-9z"/><path d="M4.5 7.5L12 11.5l7.5-4"/><path d="M12 11.5v9"/></symbol>
   <symbol id="i-office" viewBox="0 0 24 24"><path d="M4.5 20V6.8A1.8 1.8 0 0 1 6.3 5h6.4a1.8 1.8 0 0 1 1.8 1.8V20"/><path d="M14.5 10.5h3.7a1.3 1.3 0 0 1 1.3 1.3V20"/><path d="M2.8 20h18.4"/><path d="M7.5 8.5h2M7.5 12h2M7.5 15.5h2M17 14h.9M17 17h.9"/></symbol>
   <symbol id="i-gen" viewBox="0 0 24 24"><rect x="3.8" y="6" width="16.4" height="12" rx="2"/><path d="M13.2 8.3l-2.9 4h2.6l-1.6 3.6 4.1-4.8h-2.6z"/></symbol>
+  <symbol id="i-crusher" viewBox="0 0 24 24"><path d="M6.5 4.5h11l-3 7h-5z"/><path d="M12 11.5v3.2"/><path d="M3.5 19.5h17"/><circle cx="9.3" cy="17.7" r="1.4"/><circle cx="13.9" cy="17.7" r="1.4"/></symbol>
   <symbol id="i-radio" viewBox="0 0 24 24"><rect x="8" y="7.5" width="8" height="13" rx="1.6"/><path d="M10.5 7.5V3"/><rect x="10.2" y="10" width="3.6" height="3" rx=".6"/><path d="M10.5 16h.01M13.5 16h.01"/></symbol>
   <symbol id="i-flash" viewBox="0 0 24 24"><path d="M10 8.5h4l1.6 3v9h-7.2v-9z"/><path d="M10 8.5V5h4v3.5"/><path d="M12 14.5v2.5"/><path d="M6.5 4l1.6 1.6M17.5 4l-1.6 1.6M12 1.8v2.3"/></symbol>
   <symbol id="i-scooter" viewBox="0 0 24 24"><circle cx="5.7" cy="17.4" r="2.5"/><circle cx="18.3" cy="17.4" r="2.5"/><path d="M8.2 17.4h5.3"/><path d="M15.5 6.2h1.8l1.8 8.8"/><path d="M13.5 17.4l2-11.2"/><path d="M13.2 6.2h4.4"/></symbol>
@@ -973,13 +1069,14 @@ body.editing .marker .m-pin{ outline:1.5px dashed var(--accent); outline-offset:
       </span>
     </div>
     <span class="tb-sep"></span>
-    <div class="pillset" role="group" aria-label="نمط العرض">
-      <button id="btnView2d" aria-pressed="true" title="المخطط الأفقي"><svg class="ic"><use href="#i-map"/></svg> المخطط</button>
-      <button id="btnView3d" aria-pressed="false" title="المنظور الثلاثي"><svg class="ic"><use href="#i-cube"/></svg> <span class="lat" style="letter-spacing:.04em">3D</span></button>
+    <span class="tb-break" aria-hidden="true"></span>
+    <div class="pillset ps-view" role="group" aria-label="نمط العرض">
+      <button id="btnView2d" aria-pressed="true" title="المخطط الأفقي"><svg class="ic"><use href="#i-map"/></svg> <span class="pl">المخطط</span></button>
+      <button id="btnView3d" aria-pressed="false" title="المنظور الثلاثي"><svg class="ic"><use href="#i-cube"/></svg> <span class="pl lat" style="letter-spacing:.04em">3D</span></button>
     </div>
-    <div class="pillset" role="group" aria-label="طبقة التركيز">
-      <button id="btnFocusServices" aria-pressed="true"><svg class="ic"><use href="#i-target"/></svg> الخدمات الأمنية</button>
-      <button id="btnFocusSup" aria-pressed="false"><svg class="ic"><use href="#i-diamond"/></svg> نطاقات الإشراف</button>
+    <div class="pillset ps-focus" role="group" aria-label="طبقة التركيز">
+      <button id="btnFocusServices" aria-pressed="true" title="الخدمات الأمنية"><svg class="ic"><use href="#i-target"/></svg> <span class="pl">الخدمات الأمنية</span></button>
+      <button id="btnFocusSup" aria-pressed="false" title="نطاقات الإشراف"><svg class="ic"><use href="#i-diamond"/></svg> <span class="pl">نطاقات الإشراف</span></button>
     </div>
 
     <span class="tb-sp"></span>
@@ -992,10 +1089,10 @@ body.editing .marker .m-pin{ outline:1.5px dashed var(--accent); outline-offset:
 
     <div class="tb-actions">
       <span class="tb-conf">سري · لمراجعة الإدارة</span>
-      <button class="tb-btn" id="btnMatrix" title="مصفوفة الانتشار"><svg class="ic"><use href="#i-grid"/></svg> المصفوفة</button>
-      <button class="tb-btn" id="btnMgmt" title="لوحة الإدارة — القيادة والقوة"><svg class="ic"><use href="#i-org"/></svg> الإدارة</button>
+      <button class="tb-btn" id="btnMatrix" title="مصفوفة الانتشار"><svg class="ic"><use href="#i-grid"/></svg> <span class="pl">المصفوفة</span></button>
+      <button class="tb-btn" id="btnMgmt" title="لوحة الإدارة — القيادة والقوة"><svg class="ic"><use href="#i-org"/></svg> <span class="pl">الإدارة</span></button>
       <button class="tb-btn" id="btnPrint" title="طباعة / تصدير PDF"><svg class="ic"><use href="#i-print"/></svg></button>
-      <button class="tb-btn primary" id="btnPresent"><svg class="ic"><use href="#i-play"/></svg> عرض الخطة</button>
+      <button class="tb-btn primary" id="btnPresent" title="عرض الخطة"><svg class="ic"><use href="#i-play"/></svg> <span class="pl">عرض الخطة</span></button>
     </div>
   </header>
 
@@ -1053,7 +1150,7 @@ body.editing .marker .m-pin{ outline:1.5px dashed var(--accent); outline-offset:
 
       <div id="presentCard" hidden></div>
       <div id="presentBar" hidden>
-        <button class="pb-btn" id="pbExit"><svg class="ic"><use href="#i-close"/></svg> إنهاء العرض</button>
+        <button class="pb-btn" id="pbExit" title="إنهاء العرض"><svg class="ic"><use href="#i-close"/></svg> <span class="pl">إنهاء العرض</span></button>
         <button class="pb-btn" id="pbPrev"><svg class="ic"><use href="#i-arr-r"/></svg> السابق</button>
         <span class="pb-dots" id="pbDots"></span>
         <button class="pb-btn next" id="pbNext">التالي <svg class="ic"><use href="#i-arr-l"/></svg></button>
@@ -1070,9 +1167,9 @@ body.editing .marker .m-pin{ outline:1.5px dashed var(--accent); outline-offset:
       <div id="statusbar">
         <span class="vd" id="valState"><svg class="ic"><use href="#i-check"/></svg><span id="valText">…</span></span>
         <span class="sb-sep"></span>
-        <span class="vd"><span id="sbShift">الوردية النهارية</span> · <b class="num" id="sbOfficers">–</b> فرد أمن · <b class="num" id="sbSup">–</b> مشرفين</span>
-        <span class="sb-sep"></span>
-        <span class="vd">حضور يومي <b class="num" id="sbDaily">–</b> فرد · <b class="num" id="sbDailySup">–</b> مشرفين</span>
+        <span class="vd" id="sbShiftWrap"><span id="sbShift">الوردية النهارية</span> · <b class="num" id="sbOfficers">–</b> فرد أمن · <b class="num" id="sbSup">–</b> مشرفين</span>
+        <span class="sb-sep" id="sbSep2"></span>
+        <span class="vd" id="sbDailyWrap">حضور يومي <b class="num" id="sbDaily">–</b> فرد · <b class="num" id="sbDailySup">–</b> مشرفين</span>
         <span id="posNote"></span>
       </div>
     </div>
@@ -1153,17 +1250,25 @@ const BAYMOUNT_CONFIG = {
       night: { ar: "ليلي",  en: "NIGHT SHIFT" }
     },
     nightOffLabel: "غير مفعّل بالوردية الليلية",
-    nightOffShort: "خارج الخدمة ليلاً"
+    nightOffShort: "خارج الخدمة ليلاً",
+    nightOffTitle: "خدمات خارج الخدمة ليلاً"
   },
 
   /* ------------------------------------------------------------------
-     التجهيزات — قاموس الأنواع
+     التجهيزات — قاموس الأنواع + الحصر المعتمد
      ------------------------------------------------------------------ */
   equipmentTypes: {
     radio:      { ar: "جهاز لاسلكي", icon: "i-radio" },
     flashlight: { ar: "كشاف إضاءة",  icon: "i-flash" },
     scooter:    { ar: "سكوتر",       icon: "i-scooter" },
     motorcycle: { ar: "موتوسيكل",    icon: "i-moto" }
+  },
+  /* الحصر الإجمالي المعتمد للتجهيزات */
+  equipmentInventory: {
+    radio: 15,
+    flashlight: 5,
+    scooter: 1,
+    motorcycle: 2
   },
 
   /* ------------------------------------------------------------------
@@ -1181,52 +1286,45 @@ const BAYMOUNT_CONFIG = {
   /* ------------------------------------------------------------------
      نقاط الخدمة الأمنية — ١٢ نقطة / نطاق
      day / night = عدد الأفراد — المجاميع تُحسب آلياً
+     ترقيم المداخل وفق المخطط المعتمد من الإدارة
      ------------------------------------------------------------------ */
   securityPosts: [
     { id: "gate1", nameAr: "مدخل 1", nameEn: "Gate 01",
       category: "entrance", group: "المداخل",
-      x: 48.3, y: 56.4, day: 1, night: 1,
+      x: 83.0, y: 59.6, day: 1, night: 1,
       equipment: ["radio"], supervisor: "sup2",
-      aliases: ["بوابة 1", "الباب 1", "المدخل الرئيسي"],
-      notes: "" },
+      aliases: ["بوابة 1", "الباب 1"],
+      notes: "المدخل الشرقي على الطريق الرئيسي" },
 
     { id: "gate2", nameAr: "مدخل 2", nameEn: "Gate 02",
       category: "entrance", group: "المداخل",
       x: 64.0, y: 58.2, day: 1, night: 1,
-      equipment: ["radio"], supervisor: "sup2",
+      equipment: ["radio"], supervisor: "sup3",
       aliases: ["بوابة 2", "الباب 2"],
-      notes: "" },
+      notes: "ضمن نطاق مشرف المنطقة السكنية" },
 
     { id: "gate3", nameAr: "مدخل 3", nameEn: "Gate 03",
       category: "entrance", group: "المداخل",
-      x: 83.0, y: 59.6, day: 2, night: 2,
+      x: 48.3, y: 56.4, day: 2, night: 1,
       equipment: ["radio"], supervisor: "sup2",
       aliases: ["بوابة 3", "الباب 3"],
-      notes: "جهاز لاسلكي واحد مخصص للنقطة" },
+      notes: "فردان نهاراً وفرد ليلاً — جهاز لاسلكي واحد مخصص للنقطة" },
 
-    { id: "gate4", nameAr: "مدخل 4 — باب الشاطئ", nameEn: "Gate 04 · Beach",
+    { id: "gate4", nameAr: "مدخل 4", nameEn: "Gate 04 · Beach W",
       category: "entrance", group: "المداخل",
-      x: 52.4, y: 66.2, day: 1, night: 0,
+      x: 48.5, y: 74.0, day: 1, night: 0,
       equipment: ["radio"], supervisor: "sup2",
-      aliases: ["بوابة الشاطئ", "باب الشاطي", "الباب 4", "الشاطئ"],
-      notes: "خدمة نهارية فقط — تأمين المعبر إلى الواجهة البحرية" },
+      aliases: ["بوابة 4", "الباب 4", "باب الشاطئ", "باب الشاطي", "الشاطئ"],
+      notes: "بوابة الواجهة البحرية الغربية — خارج الخدمة ليلاً" },
 
-    { id: "gate5", nameAr: "مدخل 5", nameEn: "Gate 05",
+    { id: "gate5", nameAr: "مدخل 5", nameEn: "Gate 05 · Beach E",
       category: "entrance", group: "المداخل",
-      x: 6.5, y: 58.0, day: 1, night: 0,
-      equipment: ["radio"], supervisor: "sup2",
+      x: 82.0, y: 74.3, day: 1, night: 0,
+      equipment: ["radio"], supervisor: "sup3",
       aliases: ["بوابة 5", "الباب 5"],
-      notes: "خدمة نهارية فقط" },
+      notes: "بوابة الواجهة البحرية الشرقية — خارج الخدمة ليلاً · ضمن نطاق مشرف المنطقة السكنية" },
 
-    { id: "svc-m12", nameAr: "خدمة المصاطب 1+2", nameEn: "Mastaba 1+2",
-      category: "post", group: "المنطقة الإنشائية",
-      x: 89.5, y: 22.5, day: 1, night: 1,
-      equipment: [], supervisor: "sup1",
-      covers: ["m1", "m2"],
-      aliases: ["مصطبة 1", "مصطبة 2", "المصاطب"],
-      notes: "خدمة واحدة مشتركة تغطي مصطبة 1 ومصطبة 2" },
-
-    { id: "svc-m34", nameAr: "خدمة المصاطب 3+4", nameEn: "Mastaba 3+4",
+    { id: "svc-m34", nameAr: "خدمة المصاطب ‎3+4‎", nameEn: "Mastaba 3+4",
       category: "post", group: "المنطقة الإنشائية",
       x: 78.5, y: 10.0, day: 2, night: 2,
       equipment: [], supervisor: "sup1",
@@ -1234,26 +1332,34 @@ const BAYMOUNT_CONFIG = {
       aliases: ["مصطبة 3", "مصطبة 4"],
       notes: "خدمة مشتركة بفردين تغطي مصطبة 3 ومصطبة 4" },
 
+    { id: "svc-m12", nameAr: "خدمة المصاطب ‎1+2‎", nameEn: "Mastaba 1+2",
+      category: "post", group: "سكن الملاك",
+      x: 89.5, y: 22.5, day: 1, night: 1,
+      equipment: [], supervisor: "sup3",
+      covers: ["m1", "m2"],
+      aliases: ["مصطبة 1", "مصطبة 2", "المصاطب", "سكن الملاك"],
+      notes: "المصاطب ‎1+2‎ — موقع سكن الملاك: خدمة واحدة مشتركة تغطي الموقعين" },
+
     { id: "housing1", nameAr: "سكن عمال 1", nameEn: "Workers Housing 01",
-      category: "residential", group: "المناطق السكنية",
-      x: 15.0, y: 6.0, day: 1, night: 1,
+      category: "residential", group: "سكن العمال",
+      x: 41.5, y: 6.8, day: 1, night: 1,
       equipment: [], supervisor: "sup4",
       aliases: ["سكني عمال 1", "سكن العمال"],
-      notes: "" },
+      notes: "أعلى منطقة مصطبة 6" },
 
     { id: "housing2", nameAr: "سكن عمال 2", nameEn: "Workers Housing 02",
-      category: "residential", group: "المناطق السكنية",
-      x: 43.0, y: 4.8, day: 1, night: 1,
+      category: "residential", group: "سكن العمال",
+      x: 46.5, y: 4.8, day: 1, night: 1,
       equipment: [], supervisor: "sup4",
       aliases: ["سكني عمال 2"],
-      notes: "" },
+      notes: "أعلى منطقة مصطبة 6" },
 
     { id: "admin", nameAr: "شئون إدارية وعهدة", nameEn: "Admin & Custody",
       category: "admin", group: "القيادة والمرافق",
       x: 47.0, y: 26.0, day: 1, night: 0,
       equipment: [], supervisor: "sup1",
       aliases: ["العهدة", "الشئون الادارية", "شؤون إدارية"],
-      notes: "خدمة نهارية فقط" },
+      notes: "خارج الخدمة ليلاً" },
 
     { id: "control", nameAr: "غرفة المراقبة والعمليات", nameEn: "Control & Operations",
       category: "control", group: "القيادة والمرافق",
@@ -1264,26 +1370,26 @@ const BAYMOUNT_CONFIG = {
 
     { id: "offices", nameAr: "مكاتب الموظفين والمخازن", nameEn: "Offices & Warehouses",
       category: "warehouse", group: "القيادة والمرافق",
-      x: 35.0, y: 22.0, day: 1, night: 0,
+      x: 35.0, y: 22.0, day: 1, night: 1,
       equipment: [], supervisor: "sup1",
       aliases: ["المخازن", "مكاتب الموظفين", "المخزن"],
-      notes: "خدمة نهارية فقط" }
+      notes: "خدمة على مدار الورديتين" }
   ],
 
   /* ------------------------------------------------------------------
      أصول ومعالم تشغيلية (ليست نقاط أفراد)
      ------------------------------------------------------------------ */
   assets: [
-    { id: "gen", nameAr: "مولدات الكهرباء", nameEn: "Power Generators",
-      type: "generator", x: 29.0, y: 8.0, supervisor: "sup4",
-      aliases: ["مولدات", "المولدات", "الكهرباء"],
-      notes: "متابعة التشغيل وتزويد المولدات بالوقود ضمن نطاق مشرف المنطقة الجبلية — الموقع تقريبي" },
-    { id: "m1", nameAr: "مصطبة 1", type: "mastaba", x: 92.0, y: 26.0 },
-    { id: "m2", nameAr: "مصطبة 2", type: "mastaba", x: 87.0, y: 19.0 },
-    { id: "m3", nameAr: "مصطبة 3", type: "mastaba", x: 81.0, y: 14.0 },
-    { id: "m4", nameAr: "مصطبة 4", type: "mastaba", x: 76.0, y: 6.5 },
-    { id: "m5", nameAr: "مصطبة 5", type: "mastaba", x: 58.0, y: 9.0 },
-    { id: "m6", nameAr: "مصطبة 6", type: "mastaba", x: 46.0, y: 10.5 }
+    { id: "crusher", nameAr: "كسارة الحجارة", nameEn: "Stone Crusher",
+      type: "industrial", icon: "i-crusher", x: 53.5, y: 4.2, supervisor: "sup4",
+      aliases: ["كسارة", "كساره", "الكسارة", "كسارة حجارة"],
+      notes: "أعلى منطقة مصطبة 6 — ضمن نطاق مشرف سكن العمال والمناطق الجبلية · الموقع تقريبي" },
+    { id: "m1", nameAr: "مصطبة 1", type: "mastaba", zone: "سكني ملاك", x: 92.0, y: 26.0 },
+    { id: "m2", nameAr: "مصطبة 2", type: "mastaba", zone: "سكني ملاك", x: 87.0, y: 19.0 },
+    { id: "m3", nameAr: "مصطبة 3", type: "mastaba", zone: "إنشائية", x: 81.0, y: 14.0 },
+    { id: "m4", nameAr: "مصطبة 4", type: "mastaba", zone: "إنشائية", x: 76.0, y: 6.5 },
+    { id: "m5", nameAr: "مصطبة 5", type: "mastaba", zone: "إنشائية", x: 58.0, y: 9.0 },
+    { id: "m6", nameAr: "مصطبة 6", type: "mastaba", zone: "سكني عمال", x: 46.0, y: 10.5 }
   ],
 
   /* ------------------------------------------------------------------
@@ -1296,50 +1402,55 @@ const BAYMOUNT_CONFIG = {
       nameEn: "Construction Sector",
       color: "#b8913f",
       anchor: { x: 63.0, y: 15.0 },
-      polygon: [[30,27],[33.5,20],[39,13],[45,6],[52,2.5],[62,2],[72,2.8],[81,5],[89,10],[94.5,18],[95.5,28],[91,33],[83,28],[75,20],[65,15.5],[55,15.5],[46,19],[38,25],[33,28.5]],
-      coverage: ["مكاتب الموظفين", "المخازن", "مصطبة 3", "مصطبة 4", "مصطبة 5", "مصطبة 6"],
-      coverageIds: ["offices", "admin", "svc-m34", "m3", "m4", "m5", "m6"],
+      polygon: [[32,27],[35,20],[41,13],[48,5.5],[55,2.5],[63,2],[72,2.8],[81,5],[88,10],[90,16],[86,21],[79,25],[72,20],[65,15.5],[56,15],[47,18],[39,25],[34,28.5]],
+      coverage: ["مكاتب الموظفين", "المخازن", "مصطبة 3", "مصطبة 4", "مصطبة 5"],
+      coverageIds: ["offices", "admin", "svc-m34", "m3", "m4", "m5"],
       equipment: [],
-      mobility: null,
-      brief: "الإشراف على تأمين المنطقة الإنشائية: مكاتب الموظفين والمخازن والمصاطب العليا 3–6" },
+      mobility: "motorcycle",
+      route: "constructionTrack",
+      duty: "متابعة كافة التحركات ومداومة المرور لتنشيط التواجد الأمني",
+      brief: "متابعة كافة التحركات في المنطقة الإنشائية ومداومة المرور بالموتوسيكل لتنشيط التواجد الأمني — مكاتب الموظفين والمخازن والمصاطب 3–5" },
 
     { id: "sup2", code: "S2",
       nameAr: "مشرف البوابات الخارجية",
       nameEn: "External Gates Sector",
       color: "#d64a26",
       anchor: { x: 28.0, y: 60.5 },
-      polygon: [[2,54.5],[20,54],[40,53.5],[50,53.2],[62,54],[76,54.5],[91,55],[93.5,62],[76,61.5],[60,62],[56.5,62.5],[55.5,68.5],[49.5,68.5],[48.6,62.5],[30,61.5],[10,61.5],[2,60.5]],
-      coverage: ["باب 1", "باب 2", "باب 4"],
-      coverageIds: ["gate1", "gate2", "gate4"],
+      polygon: [[2,54.5],[20,54],[40,53.5],[50,53.2],[62,54],[76,54.5],[91,55],[93.5,62],[76,61.5],[60,62],[54,62.5],[55,70],[56,76.5],[43,76],[45,70],[47,62.5],[30,61.5],[10,61.5],[2,60.5]],
+      coverage: ["باب 1", "باب 3", "باب 4"],
+      coverageIds: ["gate1", "gate3", "gate4"],
       equipment: ["radio", "flashlight"],
       mobility: null,
-      brief: "الإشراف على منظومة المداخل الخارجية وحركة الدخول والخروج على محور الطريق الرئيسي" },
+      duty: "متابعة الانضباط وتنفيذ تعليمات التفتيش في الدخول والخروج",
+      brief: "الإشراف على منظومة المداخل الخارجية — متابعة الانضباط وتنفيذ تعليمات التفتيش في الدخول والخروج" },
 
     { id: "sup3", code: "S3",
       nameAr: "مشرف المنطقة السكنية للملاك",
       nameEn: "Owners Residential Sector",
       color: "#587795",
       anchor: { x: 46.0, y: 42.0 },
-      polygon: [[3,53],[3,34],[9,29],[18,30.5],[28,32],[38,31.5],[48,33],[58,30],[68,28.5],[79,28],[89,33.5],[92.5,43],[88,51],[76,51],[62,52.5],[48,52.5],[34,53],[18,53.5]],
-      coverage: ["المنطقة السكنية للملاك — الفلل والوحدات السكنية"],
-      coverageIds: [],
+      polygon: [[3,53],[3,34],[9,29],[18,30.5],[28,32],[38,31.5],[48,33],[58,30],[68,28.5],[79,28],[85,24],[90,17.5],[94,21],[93.5,30],[92.5,43],[88,51],[76,51],[62,52.5],[48,52.5],[34,53],[18,53.5]],
+      coverage: ["المصاطب ‎1+2‎ — الفلل والوحدات السكنية للملاك", "مدخل 2 ومدخل 5"],
+      coverageIds: ["gate2", "gate5", "svc-m12", "m1", "m2"],
       equipment: ["scooter", "radio"],
       mobility: "scooter",
       route: "ownersLoop",
-      brief: "دورية متحركة بالسكوتر داخل المنطقة السكنية للملاك على مدار الوردية" },
+      duty: "دورية متحركة بالسكوتر داخل المنطقة السكنية للملاك",
+      brief: "دورية متحركة بالسكوتر داخل المنطقة السكنية للملاك على مدار الوردية — المصاطب ‎1+2‎ والفلل والوحدات السكنية، والمدخلان 2 و5" },
 
     { id: "sup4", code: "S4",
       nameAr: "مشرف سكن العمال والمناطق الجبلية",
       nameEn: "Workers & Mountain Sector",
       color: "#6c7f57",
       anchor: { x: 21.0, y: 11.5 },
-      polygon: [[3,20],[3.5,9],[9,3],[18,1.5],[30,1.2],[40,1.8],[47,3],[50.5,7.5],[46.5,12],[38,13],[29,14],[19,15.5],[9,18]],
-      coverage: ["سكن عمال 1", "سكن عمال 2", "مولدات الكهرباء", "متابعة تزويد المولدات بالوقود", "منطقة المدقات بالجبل"],
-      coverageIds: ["housing1", "housing2", "gen"],
+      polygon: [[3,20],[3.5,9],[9,3],[18,1.5],[30,1.2],[40,1.8],[50,2.3],[56,4.5],[51,8.5],[46.5,12],[38,13],[29,14],[19,15.5],[9,18]],
+      coverage: ["سكن عمال 1", "سكن عمال 2", "مصطبة 6 — سكني عمال", "كسارة الحجارة أعلى منطقة 6", "تزويد مولدات الكهرباء بالسولار — 16 مولد", "منطقة المدقات بالجبل"],
+      coverageIds: ["housing1", "housing2", "m6", "crusher"],
       equipment: ["motorcycle", "radio", "flashlight"],
       mobility: "motorcycle",
       route: "mountainTrack",
-      brief: "دورية متحركة بالموتوسيكل تغطي سكن العمال والمدقات الجبلية ومولدات الكهرباء ومتابعة تزويدها بالوقود" }
+      duty: "سكن العمال والمدقات الجبلية والكسارة وتزويد المولدات بالسولار",
+      brief: "دورية متحركة بالموتوسيكل تغطي سكن العمال والمدقات الجبلية وكسارة الحجارة، والإشراف على تزويد مولدات الكهرباء بالسولار — 16 مولد" }
   ],
 
   /* ------------------------------------------------------------------
@@ -1354,7 +1465,12 @@ const BAYMOUNT_CONFIG = {
     mountainTrack: {
       labelAr: "نطاق حركة المشرف — موتوسيكل",
       closed: false,
-      points: [[6,19],[8,10],[13.5,5.5],[21,4],[29,7.8],[36,5],[43,4.8],[50,8.5],[58,8.8],[66,6],[76,6.5]]
+      points: [[6,19],[9,10],[14,6],[22,5],[30,6.5],[36,5.5],[41.5,6.8],[46.5,4.8],[53.5,4.2],[50,8.5],[46,10.5]]
+    },
+    constructionTrack: {
+      labelAr: "مداومة المرور — موتوسيكل",
+      closed: false,
+      points: [[33,26],[38,19],[44,13],[52,9],[60,7],[68,6],[75,8],[80,12],[85,17],[89,23]]
     }
   },
 
@@ -1374,12 +1490,12 @@ const BAYMOUNT_CONFIG = {
     { id: "adminAffairs", roleAr: "شئون إدارية", count: 2, tier: 2.5,
       side: true,
       duties: "إدارة شؤون العاملين والإجراءات الإدارية والعُهد",
-      functions: ["موارد بشرية", "التدريب والتطوير", "المشتريات والمخازن", "الأرشيف والوثائق"] },
+      functions: ["موارد بشرية", "التدريب والتطوير", "الأرشيف والوثائق"] },
     { id: "supervisorsTier", roleAr: "مشرفو القطاعات", count: 4, tier: 3,
       duties: "الإشراف المباشر على أفراد الأمن في المواقع",
-      functions: ["متابعة الانضباط", "جولات تفقدية", "حل المشكلات الميدانية", "رفع التقارير"] },
+      functions: ["جولات تفقدية", "حل المشكلات الميدانية", "رفع التقارير"] },
     { id: "officersTier", roleAr: "أفراد الأمن", count: 24, tier: 4,
-      duties: "تنفيذ مهام الحراسة والتأمين وحماية المنشآت والأفراد" }
+      duties: "تنفيذ مهام الحراسة والتأمين وحماية مستلزمات البناء والمخازن والملاك" }
   ],
 
   /* اسم جهة الإشراف لغير القطاعات الأربعة */
@@ -1397,19 +1513,19 @@ const BAYMOUNT_CONFIG = {
       cam: { x: 50, y: 38, k: 1.0 }, shift: "day", focus: "services", aerial: true },
 
     { id: "s2", num: "02", title: "المداخل",
-      body: "خمسة مداخل مؤمّنة بستة أفراد نهاراً — المدخل 3 بفردين، وبوابة الشاطئ (مدخل 4) والمدخل 5 خدمتان نهاريتان.",
-      cam: { x: 47, y: 59, k: 1.7 }, shift: "day", focus: "services",
+      body: "خمسة مداخل مؤمّنة بستة أفراد نهاراً — المدخل 3 بفردين نهاراً وفرد ليلاً، ومدخلا الشاطئ 4 و5 خارج الخدمة ليلاً.",
+      cam: { x: 62, y: 63, k: 1.45 }, shift: "day", focus: "services",
       pulse: ["gate1", "gate2", "gate3", "gate4", "gate5"] },
 
     { id: "s3", num: "03", title: "المنطقة الإنشائية",
-      body: "تأمين مكاتب الموظفين والمخازن نهاراً، وخدمتان ثابتتان للمصاطب: خدمة للمصطبتين 1+2 وخدمة بفردين للمصطبتين 3+4.",
-      cam: { x: 68, y: 16, k: 1.55 }, shift: "day", focus: "services",
-      pulse: ["svc-m12", "svc-m34", "offices", "admin"] },
+      body: "تأمين مكاتب الموظفين والمخازن على مدار الورديتين، وخدمة ثابتة بفردين للمصطبتين ‎3+4‎، مع مداومة مرور بالموتوسيكل لتنشيط التواجد الأمني.",
+      cam: { x: 66, y: 15, k: 1.55 }, shift: "day", focus: "services",
+      layers: { routes: true }, pulse: ["svc-m34", "offices", "admin"] },
 
     { id: "s4", num: "04", title: "المناطق السكنية",
-      body: "حماية دائمة لسكن العمال 1 و2 على مدار الورديتين، ودورية متحركة بالسكوتر داخل المنطقة السكنية للملاك.",
-      cam: { x: 42, y: 24, k: 1.25 }, shift: "day", focus: "services",
-      layers: { routes: true }, pulse: ["housing1", "housing2"] },
+      body: "حماية دائمة لسكن العمال 1 و2 أعلى مصطبة 6، وخدمة المصاطب ‎1+2‎ — موقع سكن الملاك، ودورية متحركة بالسكوتر داخل المنطقة السكنية.",
+      cam: { x: 55, y: 20, k: 1.25 }, shift: "day", focus: "services",
+      layers: { routes: true }, pulse: ["housing1", "housing2", "svc-m12"] },
 
     { id: "s5", num: "05", title: "القيادة والسيطرة",
       body: "غرفة مراقبة وعمليات تعمل نهاراً وليلاً — مراقبة الكاميرات، تلقي البلاغات، وقيادة الفرق الميدانية.",
@@ -1417,18 +1533,18 @@ const BAYMOUNT_CONFIG = {
       pulse: ["control"] },
 
     { id: "s6", num: "06", title: "المناطق الجبلية والمولدات",
-      body: "مشرف متحرك بالموتوسيكل يغطي المدقات الجبلية ومولدات الكهرباء ومتابعة تزويدها بالوقود.",
-      cam: { x: 27, y: 10, k: 1.8 }, shift: "day", focus: "services",
-      layers: { routes: true, mobility: true }, pulse: ["gen", "housing1", "housing2"] },
+      body: "مشرف متحرك بالموتوسيكل يغطي المدقات الجبلية وكسارة الحجارة، ويشرف على تزويد مولدات الكهرباء بالسولار — 16 مولد.",
+      cam: { x: 30, y: 9, k: 1.8 }, shift: "day", focus: "services",
+      layers: { routes: true, mobility: true }, pulse: ["crusher", "housing1", "housing2"] },
 
     { id: "s7", num: "07", title: "التوزيع النهاري",
       body: "14 فرد أمن على 12 نقطة ونطاق خدمة، بإشراف 4 مشرفي قطاعات.",
       cam: { x: 50, y: 38, k: 1.0 }, shift: "day", focus: "services", stat: "day" },
 
     { id: "s8", num: "08", title: "التحول إلى التوزيع الليلي",
-      body: "أربع خدمات نهارية تخرج من الخدمة آلياً — تنتقل القوة من 14 إلى 10 مع بقاء كامل تغطية المداخل الرئيسية والسكن والقيادة.",
+      body: "ثلاث خدمات تخرج من الخدمة ليلاً — مدخل 4 ومدخل 5 وشئون إدارية وعهدة — ويتحول المدخل 3 إلى فرد واحد: تنتقل القوة من 14 إلى 10 آلياً.",
       cam: { x: 50, y: 38, k: 1.0 }, shift: "night", focus: "services", stat: "night",
-      pulse: ["gate4", "gate5", "admin", "offices"] },
+      pulse: ["gate4", "gate5", "admin", "gate3"] },
 
     { id: "s9", num: "09", title: "نطاقات المشرفين",
       body: "أربعة قطاعات إشراف ثابتة في الورديتين: المنطقة الإنشائية، البوابات الخارجية، سكن الملاك، وسكن العمال والمناطق الجبلية.",
@@ -1448,7 +1564,6 @@ const BAYMOUNT_CONFIG = {
       sectors: false,     /* نطاقات الإشراف */
       radios: false,      /* أجهزة اللاسلكي */
       mobility: true,     /* وسائل الانتقال */
-      generators: true,   /* مولدات الكهرباء */
       residential: false, /* المناطق السكنية */
       construction: true, /* المناطق الإنشائية */
       routes: false       /* المسارات / نطاق الحركة */
@@ -1460,7 +1575,6 @@ const BAYMOUNT_CONFIG = {
       sectors: "نطاقات الإشراف",
       radios: "أجهزة اللاسلكي",
       mobility: "وسائل الانتقال",
-      generators: "مولدات الكهرباء",
       residential: "المناطق السكنية",
       construction: "المناطق الإنشائية",
       routes: "المسارات / نطاق الحركة"
@@ -1522,7 +1636,11 @@ function renderValidation() {
   $("#sbDailySup").textContent = v.t.dailySup;
   $("#cntDay").textContent = v.t.day;
   $("#cntNight").textContent = v.t.night;
-  console.table({ "نهاري": v.t.day, "ليلي": v.t.night, "حضور يومي": v.t.daily, "مشرفون/وردية": v.t.supPerShift, "مطابق": v.ok });
+  /* Safari's download-preview exposes a stripped console — never assume console.table */
+  try {
+    const row = { "نهاري": v.t.day, "ليلي": v.t.night, "حضور يومي": v.t.daily, "مشرفون/وردية": v.t.supPerShift, "مطابق": v.ok };
+    (console.table ? console.table : console.log).call(console, row);
+  } catch (e) { /* non-essential */ }
   return v;
 }
 
@@ -1677,11 +1795,11 @@ function buildMarkers() {
   });
   /* assets */
   C.assets.forEach(a => {
-    if (a.type === "generator") {
-      const m = markerShell(a.x, a.y, "cat-asset cat-generator lbl-key", a.id);
+    if (a.type !== "mastaba") {
+      const m = markerShell(a.x, a.y, "cat-asset cat-industrial lbl-key", a.id);
       m.innerHTML = `
         <button class="m-body" aria-label="${a.nameAr}">
-          <span class="m-pin"><svg><use href="#i-gen"/></svg></span>
+          <span class="m-pin"><svg><use href="#${a.icon || "i-terrace"}"/></svg></span>
           <span class="m-label">${a.nameAr}</span>
         </button>`;
       m.querySelector(".m-body").addEventListener("click", e => { if (S.editing) return; e.stopPropagation(); selectAsset(a.id); });
@@ -1713,6 +1831,8 @@ function buildLayers() {
     wrap.appendChild(b);
   });
   $("#layersHead").addEventListener("click", () => $("#layersPanel").classList.toggle("closed"));
+  /* small screens open with the layers panel collapsed to keep the map clear */
+  if (window.innerWidth < 940) $("#layersPanel").classList.add("closed");
   applyLayers();
 }
 function setLayer(key, on) {
@@ -1737,7 +1857,7 @@ function buildLegend() {
     <div class="lg-row">${mini("i-house")} سكن عمال</div>
     <div class="lg-row">${mini("i-screens")} غرفة مراقبة وعمليات</div>
     <div class="lg-row">${mini("i-diamond", "dia")} مشرف قطاع</div>
-    <div class="lg-row">${mini("i-gen")} مولدات الكهرباء</div>
+    <div class="lg-row">${mini("i-crusher")} كسارة الحجارة</div>
     <div class="lg-h">الحالة</div>
     <div class="lg-row"><span class="lg-sym"><span class="mini" style="background:var(--accent)"><b style="font-size:9px">2</b></span></span> عدد الأفراد بالوردية</div>
     <div class="lg-row"><span class="lg-sym"><span class="mini" style="opacity:.4"><svg class="ic"><use href="#i-off"/></svg></span></span> ${C.shiftRules.nightOffShort}</div>
@@ -1755,7 +1875,10 @@ function buildLegend() {
 /* ------------------------------------------------------------------ */
 function computeFit() {
   const r = stage.getBoundingClientRect();
-  const padX = r.width < 900 ? 24 : 120, padT = 76, padB = 96;
+  const short = r.height < 520;
+  const padX = short ? 10 : r.width < 640 ? 14 : r.width < 900 ? 24 : 120;
+  const padT = short ? 8 : r.width < 640 ? 62 : 76;
+  const padB = short ? 8 : r.width < 640 ? 62 : 96;
   let h = r.height - padT - padB;
   let w = h / C.meta.planAspect;
   if (w > r.width - padX * 2) { w = r.width - padX * 2; h = w * C.meta.planAspect; }
@@ -1770,7 +1893,15 @@ function applyCam() {
   stage.dataset.zoom = S.cam.k > 2.1 ? "near" : S.cam.k > 1.32 ? "mid" : "far";
 }
 function camHome(animate) {
-  const target = { x: S.fit.bx, y: S.fit.by, k: 1 };
+  const r = stage.getBoundingClientRect();
+  let target;
+  if (r.height < 520 && r.width > r.height) {
+    /* short landscape screens: open zoomed to a readable width-filling view */
+    const k = clamp((r.width * 0.85) / S.fit.w, 1, 2.6);
+    target = { x: r.width / 2 - k * (S.fit.w * 0.5), y: r.height / 2 - k * (S.fit.h * 0.4), k };
+  } else {
+    target = { x: S.fit.bx, y: S.fit.by, k: 1 };
+  }
   animate ? camTo(target, 900) : Object.assign(S.cam, target);
   if (!animate) applyCam();
 }
@@ -1938,6 +2069,7 @@ function clearSectorFocus() {
   S.selSector = null;
   delete body.dataset.selsector;
   $$(".sector", overlay).forEach(g => g.classList.remove("hot", "dim"));
+  $$(".route", overlay).forEach(r => r.classList.remove("dim"));
   $$(".marker.insec").forEach(m => m.classList.remove("insec"));
   $("#g-routes").classList.toggle("on", !!S.layers.routes);
 }
@@ -1948,6 +2080,8 @@ function focusSector(supId) {
     g.classList.toggle("hot", g.dataset.id === supId);
     g.classList.toggle("dim", g.dataset.id !== supId);
   });
+  const spr = supById(supId);
+  $$(".route", overlay).forEach(r => r.classList.toggle("dim", !spr || spr.route !== r.dataset.id));
   $$(".marker.insec").forEach(m => m.classList.remove("insec"));
   const sp = supById(supId);
   const ids = new Set([supId, "chip-" + supId, ...(sp.coverageIds || [])]);
@@ -2018,7 +2152,7 @@ function renderDetail(sel) {
         <div class="dt-k">${icon("i-eye")} الحالة التشغيلية</div>
         <div class="dt-status">
           <span class="st-dot ${active ? "" : "off"}"></span>
-          <span>${both ? "نشط نهاراً وليلاً" : "خدمة نهارية فقط"}
+          <span>${both ? "نشط نهاراً وليلاً" : C.shiftRules.nightOffShort}
             <span class="sub">${active ? (S.shift === "day" ? "في الخدمة — الوردية النهارية" : "في الخدمة — الوردية الليلية") : C.shiftRules.nightOffLabel}</span>
           </span>
         </div>
@@ -2082,7 +2216,7 @@ function renderDetail(sel) {
   } else if (sel.type === "asset") {
     const a = assetById(sel.id);
     head.innerHTML = `
-      <span class="dt-cat">${icon("i-gen")} أصل تشغيلي</span>
+      <span class="dt-cat">${icon(a.icon || "i-terrace")} أصل تشغيلي</span>
       <div class="dt-name">${a.nameAr}</div>
       <div class="dt-en lat">${a.nameEn || ""}</div>`;
     bodyEl.innerHTML = `
@@ -2103,7 +2237,7 @@ function buildSearch() {
   const idx = [];
   C.securityPosts.forEach(p => idx.push({ type: "post", id: p.id, name: p.nameAr, extra: C.categories[p.category].ar, icon: C.categories[p.category].icon, keys: normAr([p.nameAr, p.nameEn, ...(p.aliases || [])].join(" ")) }));
   C.supervisors.forEach(s => idx.push({ type: "sup", id: s.id, name: s.nameAr, extra: "قطاع إشراف", icon: "i-diamond", keys: normAr([s.nameAr, s.code, ...(s.coverage || [])].join(" ")) }));
-  C.assets.forEach(a => idx.push({ type: "asset", id: a.id, name: a.nameAr, extra: a.type === "generator" ? "أصل تشغيلي" : "مصطبة", icon: a.type === "generator" ? "i-gen" : "i-terrace", keys: normAr([a.nameAr, ...(a.aliases || [])].join(" ")) }));
+  C.assets.forEach(a => idx.push({ type: "asset", id: a.id, name: a.nameAr, extra: a.type === "mastaba" ? "مصطبة" : "أصل تشغيلي", icon: a.type === "mastaba" ? "i-terrace" : (a.icon || "i-terrace"), keys: normAr([a.nameAr, ...(a.aliases || [])].join(" ")) }));
   const input = $("#searchInput"), res = $("#searchResults");
   function run() {
     const q = normAr(input.value.trim());
@@ -2122,7 +2256,7 @@ function buildSearch() {
     res.innerHTML = ""; input.value = "";
     if (h.type === "post") selectPost(h.id);
     else if (h.type === "sup") { if (S.focus !== "supervision") setFocus("supervision"); selectSupervisor(h.id); }
-    else if (h.type === "asset") { if (h.id.startsWith("m")) { flyTo(assetById(h.id).x, assetById(h.id).y, 2.2, 950); pulse([h.id]); } else selectAsset(h.id); }
+    else if (h.type === "asset") { const a = assetById(h.id); if (a.type === "mastaba") { flyTo(a.x, a.y, 2.2, 950); pulse([h.id]); } else selectAsset(h.id); }
   }
   input.addEventListener("input", run);
   input.addEventListener("keydown", e => {
@@ -2146,14 +2280,13 @@ function renderMatrix() {
   const groups = [...new Set(C.securityPosts.map(p => p.group))];
   let rows = "";
   groups.forEach(g => {
-    rows += `<tr class="grp"><td colspan="6">${g}</td></tr>`;
+    rows += `<tr class="grp"><td colspan="5">${g}</td></tr>`;
     C.securityPosts.filter(p => p.group === g).forEach(p => {
       const cat = C.categories[p.category];
       rows += `<tr>
         <td><span class="locname"><span class="lic"><svg><use href="#${cat.icon}"/></svg></span> ${p.nameAr}</span></td>
         <td>${p.day > 0 ? `<span class="okc">${icon("i-check")} <span class="num">${p.day}</span></span>` : `<span class="noc">—</span>`}</td>
         <td>${p.night > 0 ? `<span class="okc">${icon("i-check")} <span class="num">${p.night}</span></span>` : `<span class="noc">${icon("i-moon")} ${C.shiftRules.nightOffShort}</span>`}</td>
-        <td class="num" style="font-weight:700">${p.day}</td>
         <td><span class="eq">${p.equipment.length ? p.equipment.map(eqChip).join("") : "<span class='noc'>—</span>"}</span></td>
         <td>${supById(p.supervisor) ? `<span class="supcell"><span class="swb" style="background:${supById(p.supervisor).color}"></span>${supervisorName(p.supervisor)}</span>` : `<span class="supcell">${supervisorName(p.supervisor)}</span>`}</td>
       </tr>`;
@@ -2171,7 +2304,7 @@ function renderMatrix() {
   $("#matrixBody").innerHTML = `
     <table class="mx">
       <thead><tr>
-        <th style="width:26%">الموقع</th><th>الوردية النهارية</th><th>الوردية الليلية</th><th>الأفراد نهاراً</th><th style="width:18%">التجهيز</th><th style="width:22%">المشرف المسؤول</th>
+        <th style="width:27%">الموقع</th><th>الوردية النهارية</th><th>الوردية الليلية</th><th style="width:19%">التجهيز</th><th style="width:24%">المشرف المسؤول</th>
       </tr></thead>
       <tbody>
         ${rows}
@@ -2179,7 +2312,6 @@ function renderMatrix() {
           <td>إجمالي أفراد الأمن</td>
           <td><span class="num">${t.day}</span> / ${C.shiftRules.expected.dayOfficers}</td>
           <td><span class="num">${t.night}</span> / ${C.shiftRules.expected.nightOfficers}</td>
-          <td class="num">${t.day}</td>
           <td colspan="2">${validation().ok ? `<span class="okc">${icon("i-check")} توزيع مطابق للقوة المعتمدة — حضور يومي ${t.daily} فرد</span>` : `<span class="noc">${icon("i-warn")} راجع التوزيع</span>`}</td>
         </tr>
       </tbody>
@@ -2197,9 +2329,7 @@ function renderMatrix() {
 /* ------------------------------------------------------------------ */
 function renderMgmt() {
   const t = totals();
-  const eqCount = {};
-  C.securityPosts.forEach(p => p.equipment.forEach(e => eqCount[e] = (eqCount[e] || 0) + 1));
-  C.supervisors.forEach(s => { s.equipment.forEach(e => eqCount[e] = (eqCount[e] || 0) + 1); if (s.mobility && !s.equipment.includes(s.mobility)) eqCount[s.mobility] = (eqCount[s.mobility] || 0) + 1; });
+  const eqCount = C.equipmentInventory || {};
   const dir = C.managementTeam.find(m => m.id === "director");
   const ops = C.managementTeam.find(m => m.id === "ops");
   const ctrl = C.managementTeam.find(m => m.id === "controlRoom");
@@ -2213,7 +2343,6 @@ function renderMgmt() {
       <div class="mg-stat"><b class="num">${t.day}</b><span>الخدمة النهارية · فرد أمن</span></div>
       <div class="mg-stat"><b class="num">${t.night}</b><span>الخدمة الليلية · فرد أمن</span></div>
       <div class="mg-stat"><b class="num">${t.points}</b><span>نقطة / نطاق أمني</span></div>
-      <div class="mg-stat"><b class="num">${t.dayOnly.length}</b><span>خدمات نهارية فقط</span></div>
     </div>
 
     <div class="mg-h">${icon("i-org")} هيكل القيادة والسيطرة</div>
@@ -2252,7 +2381,7 @@ function renderMgmt() {
         ${C.supervisors.map(s => `
           <div class="org-sup" style="--sc:${s.color}">
             <b>${s.nameAr}</b>
-            <small>${s.mobility ? icon(C.equipmentTypes[s.mobility].icon) + " " + C.equipmentTypes[s.mobility].ar + " · " : ""}${supT.functions.slice(0, 2).join(" · ")}</small>
+            <small>${s.mobility ? icon(C.equipmentTypes[s.mobility].icon) + " " + C.equipmentTypes[s.mobility].ar + " · " : ""}${s.duty || supT.functions.slice(0, 2).join(" · ")}</small>
           </div>`).join("")}
       </div>
       <span class="org-link"></span>
@@ -2268,12 +2397,6 @@ function renderMgmt() {
         <div class="mg-h">${icon("i-radio")} حصر التجهيزات</div>
         <ul class="mg-list">
           ${Object.keys(eqCount).map(k => `<li>${icon(C.equipmentTypes[k].icon)} ${C.equipmentTypes[k].ar}<b class="num">${eqCount[k]}</b></li>`).join("")}
-        </ul>
-      </div>
-      <div>
-        <div class="mg-h">${icon("i-sun")} خدمات نهارية فقط</div>
-        <ul class="mg-list">
-          ${t.dayOnly.map(p => `<li>${icon(C.categories[p.category].icon)} ${p.nameAr}<span class="dayonly-tag">${C.shiftRules.nightOffShort}</span></li>`).join("")}
         </ul>
       </div>
     </div>`;
@@ -2401,8 +2524,8 @@ function buildPrint() {
       <span class="pm-pin ${p.category === "entrance" ? "ent" : ""} ${off ? "offp" : ""}">${off ? "×" : p[S.shift]}</span>
       <span class="pm-lbl">${p.nameAr}</span></span>`;
   }).join("");
-  const gens = C.assets.filter(a => a.type === "generator").map(a =>
-    `<span class="pm-marker" style="inset-inline-start:${100 - a.x}%;top:${a.y}%"><span class="pm-pin" style="background:#665">⚡</span><span class="pm-lbl">${a.nameAr}</span></span>`).join("");
+  const extras = C.assets.filter(a => a.type === "industrial").map(a =>
+    `<span class="pm-marker" style="inset-inline-start:${100 - a.x}%;top:${a.y}%"><span class="pm-pin" style="background:#6b5f3f">⛏</span><span class="pm-lbl">${a.nameAr}</span></span>`).join("");
   $("#printRoot").innerHTML = `
     <div class="pr-head">
       <span class="pr-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><use href="#i-shield"/></svg></span>
@@ -2417,7 +2540,7 @@ function buildPrint() {
       </div>
     </div>
     <div class="pr-grid">
-      <div class="pr-map"><img src="${C.meta.planImage}">${pm}${gens}</div>
+      <div class="pr-map"><img src="${C.meta.planImage}">${pm}${extras}</div>
       <div class="pr-side">
         <div class="pr-stats">
           <div class="pr-stat"><b class="num">${t.daily}</b><span>فرد أمن · حضور يومي</span></div>
@@ -2598,21 +2721,25 @@ function wire() {
 }
 
 function init() {
-  $("#plan").src = C.meta.planImage;
-  buildOverlay();
-  buildMarkers();
-  buildLayers();
-  buildLegend();
-  buildSearch();
-  wire();
-  initCamera();
-  renderValidation();
-  setShift("day", { force: true });
-  setView("2d");
-  setFocus("services");
+  /* hardened: whatever happens, the intro must never deadlock the app */
+  try {
+    $("#plan").src = C.meta.planImage;
+    buildOverlay();
+    buildMarkers();
+    buildLayers();
+    buildLegend();
+    buildSearch();
+    wire();
+    initCamera();
+    renderValidation();
+    setShift("day", { force: true });
+    setView("2d");
+    setFocus("services");
+  } catch (err) { try { console.error("BSO init:", err); } catch (e) {} }
   const hash = location.hash;
   const skip = hash === "#app" || hash === "#edit" || hash === "#present";
-  runIntro(skip);
+  try { runIntro(skip); }
+  catch (err) { const i = $("#intro"); if (i) i.remove(); $("#app").classList.add("on"); }
   if (hash === "#edit") setEdit(true);
   if (hash === "#present") setTimeout(startPresent, 400);
 }
