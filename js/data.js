@@ -74,7 +74,7 @@ const BAYMOUNT_CONFIG = {
   categories: {
     entrance:    { ar: "مدخل",            icon: "i-gate",    layer: "gates" },
     post:        { ar: "نقطة أمن",        icon: "i-terrace", layer: "services" },
-    residential: { ar: "سكن عمال",        icon: "i-house",   layer: "services" },
+    residential: { ar: "سكن عمال",        icon: "i-house",   layer: "residential" },
     control:     { ar: "قيادة وسيطرة",    icon: "i-screens", layer: "services" },
     admin:       { ar: "إدارية وعهدة",    icon: "i-box",     layer: "services" },
     warehouse:   { ar: "مكاتب ومخازن",    icon: "i-office",  layer: "services" }
@@ -129,13 +129,13 @@ const BAYMOUNT_CONFIG = {
       aliases: ["مصطبة 3", "مصطبة 4"],
       notes: "خدمة مشتركة بفردين تغطي مصطبة 3 ومصطبة 4" },
 
-    { id: "svc-m12", nameAr: "خدمة المصاطب ‎1+2‎", nameEn: "Mastaba 1+2",
-      category: "post", group: "سكن الملاك",
-      x: 88.7, y: 24.2, day: 1, night: 1,
+    { id: "svc-m12", nameAr: "سكن الملاك", nameEn: "Owners Housing · Mastaba 1+2",
+      category: "post", group: "سكن الملاك", layer: "residential",
+      x: 87.0, y: 22.5, day: 1, night: 1,
       equipment: [], supervisor: "sup3",
       covers: ["m1", "m2"],
-      aliases: ["مصطبة 1", "مصطبة 2", "المصاطب", "سكن الملاك"],
-      notes: "المصاطب ‎1+2‎ — موقع سكن الملاك: خدمة واحدة مشتركة تغطي الموقعين" },
+      aliases: ["مصطبة 1", "مصطبة 2", "المصاطب", "سكن الملاك", "خدمة المصاطب"],
+      notes: "سكن الملاك على المصاطب ‎1+2‎ — خدمة واحدة مشتركة تغطي الموقعين" },
 
     { id: "housing1", nameAr: "سكن عمال 1", nameEn: "Workers Housing 01",
       category: "residential", group: "سكن العمال",
@@ -181,7 +181,7 @@ const BAYMOUNT_CONFIG = {
       type: "industrial", icon: "i-crusher", quietLabel: true, x: 50.5, y: 8.4, supervisor: "sup4",
       aliases: ["كسارة", "كساره", "الكسارة", "كسارة حجارة"],
       notes: "أعلى منطقة مصطبة 6 — ضمن نطاق مشرف سكن العمال والمناطق الجبلية · الموقع تقريبي" },
-    { id: "m1", nameAr: "مصطبة 1", type: "mastaba", zone: "سكني ملاك", x: 91.4, y: 28.1 },
+    { id: "m1", nameAr: "مصطبة 1", type: "mastaba", zone: "سكني ملاك", x: 93.5, y: 30.5 },
     { id: "m2", nameAr: "مصطبة 2", type: "mastaba", zone: "سكني ملاك", x: 86.0, y: 20.2 },
     { id: "m3", nameAr: "مصطبة 3", type: "mastaba", zone: "إنشائية", x: 79.6, y: 14.6 },
     { id: "m4", nameAr: "مصطبة 4", type: "mastaba", zone: "إنشائية", x: 74.2, y: 6.2 },
@@ -257,10 +257,10 @@ const BAYMOUNT_CONFIG = {
      ------------------------------------------------------------------ */
   zones: [
     /* سكن الملاك — المصاطب 1+2 */
-    { id: "res-owners",  nameAr: "سكن الملاك — المصاطب \u200E1+2\u200E", layer: "residential", color: "#587795",
+    { id: "res-owners",  nameAr: "سكن الملاك", layer: "residential", color: "#587795",
       polygon: [[80.5,23],[82,17.5],[86.5,14],[91,15],[94.5,19.5],[95,26],[92.5,31.5],[87.5,33],[83,30.5]] },
     /* سكن العمال — سكن عمال 1 و2 أعلى المصطبة 6 */
-    { id: "res-workers", nameAr: "سكن العمال — أعلى المصطبة 6", layer: "residential", color: "#7c5a8f",
+    { id: "res-workers", nameAr: "سكن العمال", layer: "residential", color: "#7c5a8f",
       polygon: [[24,17.5],[26,11.5],[31,8],[37,5.5],[43,6],[47.5,9.5],[46.5,15],[40,16.8],[33,18.5],[28,18.8]] },
     { id: "construction", nameAr: "المنطقة الإنشائية", layer: "construction", color: "#b8913f", from: "sup1" }
   ],
@@ -334,7 +334,7 @@ const BAYMOUNT_CONFIG = {
       layers: { routes: true }, pulse: ["svc-m34", "offices", "admin"] },
 
     { id: "s4", num: "04", title: "المناطق السكنية",
-      body: "حماية دائمة لسكن العمال 1 و2 أعلى مصطبة 6، وخدمة المصاطب ‎1+2‎ — موقع سكن الملاك، ودورية متحركة بالسكوتر داخل المنطقة السكنية.",
+      body: "حماية دائمة لسكن العمال 1 و2 أعلى مصطبة 6، وسكن الملاك على المصاطب ‎1+2‎، ودورية متحركة بالسكوتر داخل المنطقة السكنية.",
       cam: { x: 51.6, y: 21.3, k: 1.25 }, shift: "day", focus: "services",
       layers: { routes: true }, pulse: ["housing1", "housing2", "svc-m12"] },
 
@@ -375,7 +375,7 @@ const BAYMOUNT_CONFIG = {
       sectors: false,     /* نطاقات الإشراف */
       radios: true,      /* أجهزة اللاسلكي */
       mobility: true,     /* وسائل الانتقال */
-      residential: false, /* المناطق السكنية */
+      residential: true,  /* المناطق السكنية — سكن الملاك وسكن العمال */
       construction: true, /* المناطق الإنشائية */
       routes: false       /* المسارات / نطاق الحركة */
     },

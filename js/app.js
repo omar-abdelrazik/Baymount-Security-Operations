@@ -169,7 +169,7 @@ function buildMarkers() {
   C.securityPosts.forEach(p => {
     const cat = C.categories[p.category];
     const isGate = p.category === "entrance";
-    const m = markerShell(p.x, p.y, `cat-${p.category} cat-post-like lyr-${isGate ? "gates" : "services"}`, p.id);
+    const m = markerShell(p.x, p.y, `cat-${p.category} cat-post-like lyr-${p.layer || cat.layer || "services"}`, p.id);
     if (isGate || p.category === "residential" || p.category === "control") m.classList.add("lbl-key");
     if (p.labelPos === "top") m.classList.add("lbl-top");
     if (p.equipment.includes("radio")) m.classList.add("has-radio");
@@ -444,7 +444,7 @@ const LABEL_RANK = { entrance: 1, control: 2, residential: 3, warehouse: 4, admi
 function markerRank(m) {
   if (m.classList.contains("cat-entrance")) return LABEL_RANK.entrance;
   if (m.classList.contains("cat-control")) return LABEL_RANK.control;
-  if (m.classList.contains("cat-residential")) return LABEL_RANK.residential;
+  if (m.classList.contains("cat-residential") || m.classList.contains("lyr-residential")) return LABEL_RANK.residential;
   if (m.classList.contains("cat-industrial")) return LABEL_RANK.industrial;
   if (m.classList.contains("cat-mastaba")) return LABEL_RANK.mastaba;
   if (m.classList.contains("cat-warehouse") || m.classList.contains("cat-admin")) return LABEL_RANK.admin;
@@ -495,7 +495,7 @@ function runDeclutter() {
       m.classList.toggle("lbl-top", top);
       const r = label.getBoundingClientRect();
       const inside = r.left > view.left + 2 && r.right < view.right - 2 && r.top > view.top + 2 && r.bottom < view.bottom - 2;
-      const clearOfPins = !pins.some(p => p.id !== m.dataset.id && hits(r, p.r, 1));
+      const clearOfPins = !pins.some(p => p.id !== m.dataset.id && hits(r, p.r, 3));
       const clearOfLabels = !taken.some(t => hits(r, t, 3));
       if (inside && clearOfPins && clearOfLabels) { taken.push(r); placed = true; break; }
     }

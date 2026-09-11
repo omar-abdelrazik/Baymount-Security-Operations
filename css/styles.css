@@ -452,6 +452,7 @@ body[data-selsector] .marker.cat-supervisor:not(.insec) .m-body{ opacity:.25; }
 /* layer hiding */
 body:not(.layer-services) .marker.lyr-services,
 body:not(.layer-gates) .marker.lyr-gates,
+body:not(.layer-residential) .marker.lyr-residential,
 body:not(.layer-supervisors) .marker.cat-supervisor,
 body:not(.layer-construction) .marker.cat-industrial,
 body:not(.layer-construction) .marker.cat-mastaba{ display:none; }
