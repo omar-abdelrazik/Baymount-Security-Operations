@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Baymount Security Operations — خطة التأمين وتوزيع الخدمات</title>
+<link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect width="24" height="24" rx="6" fill="%23181b20"/><path d="M12 4.5l5.5 2.3v4.4c0 3.6-2.3 6-5.5 7.3-3.2-1.3-5.5-3.7-5.5-7.3V6.8z" fill="none" stroke="%23d64a26" stroke-width="1.7"/></svg>'>
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body data-shift="day" data-view="2d" data-focus="services">
+
+<!-- ============ SVG ICON LIBRARY ============ -->
+<svg style="display:none" aria-hidden="true">
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3.2l6.8 2.8v5.3c0 4.4-2.9 7.4-6.8 8.9-3.9-1.5-6.8-4.5-6.8-8.9V6z"/><path d="M9.2 12l2 2 3.6-4"/></symbol>
+  <symbol id="i-gate" viewBox="0 0 24 24"><path d="M4 20V9.5a2.5 2.5 0 0 1 2.5-2.5h11A2.5 2.5 0 0 1 20 9.5V20"/><path d="M9 20v-5.5h6V20"/><path d="M2.5 20h19"/><path d="M12 7V4.5"/></symbol>
+  <symbol id="i-terrace" viewBox="0 0 24 24"><path d="M3 19h18"/><path d="M6 19v-4.5h12V19"/><path d="M9 14.5V10h6v4.5"/><path d="M12 10V7"/></symbol>
+  <symbol id="i-house" viewBox="0 0 24 24"><path d="M4 11.2l8-6.2 8 6.2"/><path d="M6.3 9.5V20h11.4V9.5"/><path d="M10.4 20v-5.4h3.2V20"/></symbol>
+  <symbol id="i-screens" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="11.5" rx="1.8"/><path d="M12 5v11.5M3.5 10.7H21"/><path d="M9 20h6M12 16.5V20"/></symbol>
+  <symbol id="i-box" viewBox="0 0 24 24"><path d="M12 3.5l7.5 4v9L12 20.5l-7.5-4v-9z"/><path d="M4.5 7.5L12 11.5l7.5-4"/><path d="M12 11.5v9"/></symbol>
+  <symbol id="i-office" viewBox="0 0 24 24"><path d="M4.5 20V6.8A1.8 1.8 0 0 1 6.3 5h6.4a1.8 1.8 0 0 1 1.8 1.8V20"/><path d="M14.5 10.5h3.7a1.3 1.3 0 0 1 1.3 1.3V20"/><path d="M2.8 20h18.4"/><path d="M7.5 8.5h2M7.5 12h2M7.5 15.5h2M17 14h.9M17 17h.9"/></symbol>
+  <symbol id="i-gen" viewBox="0 0 24 24"><rect x="3.8" y="6" width="16.4" height="12" rx="2"/><path d="M13.2 8.3l-2.9 4h2.6l-1.6 3.6 4.1-4.8h-2.6z"/></symbol>
+  <symbol id="i-radio" viewBox="0 0 24 24"><rect x="8" y="7.5" width="8" height="13" rx="1.6"/><path d="M10.5 7.5V3"/><rect x="10.2" y="10" width="3.6" height="3" rx=".6"/><path d="M10.5 16h.01M13.5 16h.01"/></symbol>
+  <symbol id="i-flash" viewBox="0 0 24 24"><path d="M10 8.5h4l1.6 3v9h-7.2v-9z"/><path d="M10 8.5V5h4v3.5"/><path d="M12 14.5v2.5"/><path d="M6.5 4l1.6 1.6M17.5 4l-1.6 1.6M12 1.8v2.3"/></symbol>
+  <symbol id="i-scooter" viewBox="0 0 24 24"><circle cx="5.7" cy="17.4" r="2.5"/><circle cx="18.3" cy="17.4" r="2.5"/><path d="M8.2 17.4h5.3"/><path d="M15.5 6.2h1.8l1.8 8.8"/><path d="M13.5 17.4l2-11.2"/><path d="M13.2 6.2h4.4"/></symbol>
+  <symbol id="i-moto" viewBox="0 0 24 24"><circle cx="5.4" cy="16.8" r="2.9"/><circle cx="18.6" cy="16.8" r="2.9"/><path d="M5.4 16.8l3.2-5h4.6l2.2 3h3.2"/><path d="M13.2 11.8L15 8.6h2.4"/><path d="M8.6 11.8H6"/></symbol>
+  <symbol id="i-diamond" viewBox="0 0 24 24"><path d="M12 3.4l8.6 8.6-8.6 8.6-8.6-8.6z"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2.5 12S6 5.8 12 5.8 21.5 12 21.5 12 18 18.2 12 18.2 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="2.8"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.6"/><path d="M12 2.8v2.4M12 18.8v2.4M2.8 12h2.4M18.8 12h2.4M5.5 5.5l1.7 1.7M16.8 16.8l1.7 1.7M18.5 5.5l-1.7 1.7M7.2 16.8l-1.7 1.7"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 13.6A8.2 8.2 0 1 1 10.4 4a6.6 6.6 0 0 0 9.6 9.6z"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M4.5 12.8l4.8 4.7L19.5 6.8"/></symbol>
+  <symbol id="i-warn" viewBox="0 0 24 24"><path d="M12 4L2.8 19.5h18.4z"/><path d="M12 10v4.2M12 16.8h.01"/></symbol>
+  <symbol id="i-off" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.2"/><path d="M6.2 6.2l11.6 11.6"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.2"/><path d="M20.5 20.5l-4.8-4.8"/></symbol>
+  <symbol id="i-print" viewBox="0 0 24 24"><path d="M7 8.5V3.8h10v4.7"/><rect x="4" y="8.5" width="16" height="8" rx="1.8"/><path d="M7 13.5h10v6.7H7z"/></symbol>
+  <symbol id="i-layers" viewBox="0 0 24 24"><path d="M12 3.5l9 4.7-9 4.7-9-4.7z"/><path d="M4.2 12.6L12 16.7l7.8-4.1"/><path d="M4.2 16.4L12 20.5l7.8-4.1"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.5l11 6.5-11 6.5z"/></symbol>
+  <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3.8" y="3.8" width="16.4" height="16.4" rx="2"/><path d="M3.8 9.8h16.4M3.8 15h16.4M12 3.8v16.4"/></symbol>
+  <symbol id="i-org" viewBox="0 0 24 24"><rect x="8.6" y="3.4" width="6.8" height="4.6" rx="1.2"/><rect x="2.8" y="16" width="6.4" height="4.6" rx="1.2"/><rect x="14.8" y="16" width="6.4" height="4.6" rx="1.2"/><path d="M12 8v4M12 12H6v4M12 12h6v4"/></symbol>
+  <symbol id="i-map" viewBox="0 0 24 24"><path d="M3.5 6.2l5.5-2 6 2 5.5-2v13.6l-5.5 2-6-2-5.5 2z"/><path d="M9 4.2v13.6M15 6.2v13.6"/></symbol>
+  <symbol id="i-cube" viewBox="0 0 24 24"><path d="M12 3l8 4.6v8.8L12 21l-8-4.6V7.6z"/><path d="M4 7.6l8 4.6 8-4.6M12 12.2V21"/></symbol>
+  <symbol id="i-route" viewBox="0 0 24 24"><path d="M5 19c6-1 2-7 7.5-8.5S19 6 19 6" stroke-dasharray="3.2 3.2"/><circle cx="5" cy="19" r="1.8"/><circle cx="19" cy="6" r="1.8"/></symbol>
+  <symbol id="i-arr-l" viewBox="0 0 24 24"><path d="M14.5 5.5L8 12l6.5 6.5"/></symbol>
+  <symbol id="i-arr-r" viewBox="0 0 24 24"><path d="M9.5 5.5L16 12l-6.5 6.5"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5.5v13M5.5 12h13"/></symbol>
+  <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5.5 12h13"/></symbol>
+  <symbol id="i-fit" viewBox="0 0 24 24"><path d="M9 3.8H5.5A1.7 1.7 0 0 0 3.8 5.5V9M15 3.8h3.5a1.7 1.7 0 0 1 1.7 1.7V9M9 20.2H5.5a1.7 1.7 0 0 1-1.7-1.7V15M15 20.2h3.5a1.7 1.7 0 0 0 1.7-1.7V15"/></symbol>
+  <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="1.4"/><path d="M12 2.8V5M12 19v2.2M2.8 12H5M19 12h2.2"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8.2" r="3.2"/><path d="M3.5 19.5c.6-3.4 2.8-5.2 5.5-5.2s4.9 1.8 5.5 5.2"/><circle cx="16.8" cy="9" r="2.5"/><path d="M16 14.6c2.4.2 4 1.8 4.5 4.4"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 4v16h16"/><path d="M8.5 16v-5M13 16V7.5M17.5 16v-3.4"/></symbol>
+  <symbol id="i-caret" viewBox="0 0 24 24"><path d="M6.5 10l5.5 5 5.5-5"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8.5" y="8.5" width="11.5" height="11.5" rx="2"/><path d="M15.5 8.5V5.8A1.8 1.8 0 0 0 13.7 4H5.8A1.8 1.8 0 0 0 4 5.8v7.9a1.8 1.8 0 0 0 1.8 1.8h2.7"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3.8v11M7.5 10.5L12 15l4.5-4.5"/><path d="M4 16.5v2A1.8 1.8 0 0 0 5.8 20.2h12.4a1.8 1.8 0 0 0 1.8-1.8v-2"/></symbol>
+</svg>
+
+<!-- ============ INTRO ============ -->
+<section id="intro" role="button" aria-label="دخول المنظومة">
+  <div class="intro-bg"></div>
+  <div class="intro-scrim"></div>
+  <div class="intro-content">
+    <div class="intro-brand"><span class="rule"></span><span class="lat">BAYMOUNT SOKHNA</span></div>
+    <h1>خطة التأمين<br>وتوزيع الخدمات</h1>
+    <div class="intro-sub lat">SECURITY OPERATIONS · MAVEN DEVELOPMENTS</div>
+    <div class="intro-stats">
+      <div class="istat"><b class="num" data-count="dailyOfficers">0</b><span>فرد أمن · قوة حضور يومية</span></div>
+      <div class="istat"><b class="num" data-count="dailySupervisors">0</b><span>مشرفين · قوة حضور يومية</span></div>
+      <div class="istat hot"><b class="num" data-count="day">0</b><span>الوردية النهارية</span></div>
+      <div class="istat"><b class="num" data-count="night">0</b><span>الوردية الليلية</span></div>
+      <div class="istat"><b class="num" data-count="perShiftSup">0</b><span>مشرفين لكل وردية</span></div>
+    </div>
+    <div class="intro-foot">
+      <button id="enterApp">دخول المنظومة <svg class="ic"><use href="#i-arr-l"/></svg></button>
+      <span class="chip-conf">سري · لمراجعة الإدارة <i class="lat">CONFIDENTIAL</i></span>
+      <span class="intro-hint">اضغط في أي مكان للمتابعة</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ APP ============ -->
+<div id="app">
+  <header id="topbar">
+    <div class="brand" id="brand" title="Baymount Security Operations">
+      <span class="brand-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><use href="#i-shield"/></svg></span>
+      <span class="brand-t">
+        <span class="a">خطة التأمين وتوزيع الخدمات</span><br>
+        <span class="b lat">BAYMOUNT · SECURITY OPERATIONS</span>
+      </span>
+    </div>
+    <span class="tb-sep"></span>
+    <div class="pillset" role="group" aria-label="نمط العرض">
+      <button id="btnView2d" aria-pressed="true" title="المخطط الأفقي"><svg class="ic"><use href="#i-map"/></svg> المخطط</button>
+      <button id="btnView3d" aria-pressed="false" title="المنظور الثلاثي"><svg class="ic"><use href="#i-cube"/></svg> <span class="lat" style="letter-spacing:.04em">3D</span></button>
+    </div>
+    <div class="pillset" role="group" aria-label="طبقة التركيز">
+      <button id="btnFocusServices" aria-pressed="true"><svg class="ic"><use href="#i-target"/></svg> الخدمات الأمنية</button>
+      <button id="btnFocusSup" aria-pressed="false"><svg class="ic"><use href="#i-diamond"/></svg> نطاقات الإشراف</button>
+    </div>
+
+    <span class="tb-sp"></span>
+    <div id="shiftToggle" role="group" aria-label="الوردية">
+      <span class="thumb"></span>
+      <button id="btnDay" class="active" aria-pressed="true"><svg class="ic"><use href="#i-sun"/></svg> نهاري <span class="cnt num" id="cntDay">–</span></button>
+      <button id="btnNight" aria-pressed="false"><svg class="ic"><use href="#i-moon"/></svg> ليلي <span class="cnt num" id="cntNight">–</span></button>
+    </div>
+    <span class="tb-sp"></span>
+
+    <div class="tb-actions">
+      <span class="tb-conf">سري · لمراجعة الإدارة</span>
+      <button class="tb-btn" id="btnMatrix" title="مصفوفة الانتشار"><svg class="ic"><use href="#i-grid"/></svg> المصفوفة</button>
+      <button class="tb-btn" id="btnMgmt" title="لوحة الإدارة — القيادة والقوة"><svg class="ic"><use href="#i-org"/></svg> الإدارة</button>
+      <button class="tb-btn" id="btnPrint" title="طباعة / تصدير PDF"><svg class="ic"><use href="#i-print"/></svg></button>
+      <button class="tb-btn primary" id="btnPresent"><svg class="ic"><use href="#i-play"/></svg> عرض الخطة</button>
+    </div>
+  </header>
+
+  <main id="main">
+    <div id="stage" data-zoom="far">
+      <div id="camera"><div id="drift"><div id="tilt">
+        <img id="plan" alt="المخطط العام — باي ماونت السخنة" draggable="false">
+        <div id="nightveil"></div>
+        <svg id="overlay" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+          <g id="g-zoneres"></g>
+          <g id="g-zonecon"></g>
+          <g id="g-sectors"></g>
+          <g id="g-routes"></g>
+        </svg>
+        <div id="markers"></div>
+      </div></div></div>
+
+      <div id="aerialFx"></div>
+
+      <div class="float" id="layersPanel">
+        <div class="fp-head" id="layersHead"><svg class="ic"><use href="#i-layers"/></svg> طبقات الخريطة <svg class="ic car"><use href="#i-caret"/></svg></div>
+        <div class="fp-body" id="layersBody"></div>
+      </div>
+
+      <div class="float closed" id="legend">
+        <div class="fp-head" id="legendHead"><svg class="ic"><use href="#i-eye"/></svg> دليل الرموز <svg class="ic car"><use href="#i-caret"/></svg></div>
+        <div class="fp-body" id="legendBody"></div>
+      </div>
+
+      <div class="float" id="searchWrap">
+        <div class="s-in">
+          <svg class="ic"><use href="#i-search"/></svg>
+          <input id="searchInput" type="text" placeholder="ابحث: مدخل 3 · سكن عمال · غرفة العمليات…" autocomplete="off">
+        </div>
+        <div id="searchResults"></div>
+      </div>
+
+      <div class="float" id="zoomCtl">
+        <button id="zIn" title="تقريب"><svg class="ic"><use href="#i-plus"/></svg></button>
+        <button id="zOut" title="إبعاد"><svg class="ic"><use href="#i-minus"/></svg></button>
+        <button id="zFit" title="ملاءمة العرض"><svg class="ic"><use href="#i-fit"/></svg></button>
+      </div>
+      <div class="float" id="tiltCtl">
+        <label>زاوية</label>
+        <input id="tiltRange" type="range" min="32" max="64" value="54">
+      </div>
+
+      <aside id="detail" aria-label="تفاصيل الموقع">
+        <div class="dt-head">
+          <button class="dt-x" id="detailClose" title="إغلاق"><svg class="ic"><use href="#i-close"/></svg></button>
+          <div id="detailHead"></div>
+        </div>
+        <div class="dt-body" id="detailBody"></div>
+      </aside>
+
+      <div id="presentCard" hidden></div>
+      <div id="presentBar" hidden>
+        <button class="pb-btn" id="pbExit"><svg class="ic"><use href="#i-close"/></svg> إنهاء العرض</button>
+        <button class="pb-btn" id="pbPrev"><svg class="ic"><use href="#i-arr-r"/></svg> السابق</button>
+        <span class="pb-dots" id="pbDots"></span>
+        <button class="pb-btn next" id="pbNext">التالي <svg class="ic"><use href="#i-arr-l"/></svg></button>
+      </div>
+
+      <div id="editBar" hidden>
+        <span class="eb-tag">وضع تحرير المواقع — اسحب أي علامة</span>
+        <span class="eb-xy num" id="ebXY">—</span>
+        <button id="ebCopy"><svg class="ic"><use href="#i-copy"/></svg> نسخ الإحداثيات JSON</button>
+        <button id="ebDownload"><svg class="ic"><use href="#i-download"/></svg> تنزيل data.js</button>
+        <button class="leave" id="ebExit">إنهاء التحرير</button>
+      </div>
+
+      <div id="statusbar">
+        <span class="vd" id="valState"><svg class="ic"><use href="#i-check"/></svg><span id="valText">…</span></span>
+        <span class="sb-sep"></span>
+        <span class="vd"><span id="sbShift">الوردية النهارية</span> · <b class="num" id="sbOfficers">–</b> فرد أمن · <b class="num" id="sbSup">–</b> مشرفين</span>
+        <span class="sb-sep"></span>
+        <span class="vd">حضور يومي <b class="num" id="sbDaily">–</b> فرد · <b class="num" id="sbDailySup">–</b> مشرفين</span>
+        <span id="posNote"></span>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ============ SHEETS ============ -->
+<section class="sheet" id="matrixSheet" aria-label="مصفوفة الانتشار">
+  <div class="sheet-card">
+    <div class="sheet-head">
+      <svg class="ic"><use href="#i-grid"/></svg>
+      <div><div class="sheet-title">مصفوفة الانتشار الأمني</div><div class="sheet-sub">التوزيع التفصيلي للخدمات والتجهيزات على الورديتين</div></div>
+      <button class="dt-x" data-close="matrixSheet"><svg class="ic"><use href="#i-close"/></svg></button>
+    </div>
+    <div class="sheet-body" id="matrixBody"></div>
+  </div>
+</section>
+
+<section class="sheet" id="mgmtSheet" aria-label="لوحة الإدارة">
+  <div class="sheet-card">
+    <div class="sheet-head">
+      <svg class="ic"><use href="#i-org"/></svg>
+      <div><div class="sheet-title">لوحة الإدارة — القيادة والقوة</div><div class="sheet-sub">الملخص التنفيذي وهيكل القيادة والسيطرة</div></div>
+      <button class="dt-x" data-close="mgmtSheet"><svg class="ic"><use href="#i-close"/></svg></button>
+    </div>
+    <div class="sheet-body" id="mgmtBody"></div>
+  </div>
+</section>
+
+<div id="toast"></div>
+<div id="printRoot" aria-hidden="true"></div>
+
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
