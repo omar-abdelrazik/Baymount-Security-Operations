@@ -23,6 +23,8 @@ const BAYMOUNT_CONFIG = {
     confidentialAr: "سري · لمراجعة الإدارة",
     confidentialEn: "CONFIDENTIAL — FOR MANAGEMENT REVIEW",
     planImage: "assets/masterplan.jpg",
+    /* lighter copy used for printing — phones drop very large images while rendering PDFs */
+    printImage: "assets/masterplan-print.jpg",
     aerialImage: "assets/aerial.jpg",
     /* aspect ratio of the masterplan image (height / width) */
     planAspect: 1765 / 1674,
@@ -248,6 +250,20 @@ const BAYMOUNT_CONFIG = {
       brief: "دورية متحركة بالموتوسيكل تغطي سكن العمال والمدقات الجبلية وكسارة الحجارة، والإشراف على تزويد مولدات الكهرباء بالسولار — 16 مولد" }
   ],
 
+
+  /* ------------------------------------------------------------------
+     مناطق المخطط — تُعرض كتظليل من طبقات الخريطة
+     from: يعيد استخدام حدود قطاع إشراف موجود بدل تكرار الإحداثيات
+     ------------------------------------------------------------------ */
+  zones: [
+    /* سكن الملاك — المصاطب 1+2 */
+    { id: "res-owners",  nameAr: "سكن الملاك — المصاطب \u200E1+2\u200E", layer: "residential", color: "#587795",
+      polygon: [[80.5,23],[82,17.5],[86.5,14],[91,15],[94.5,19.5],[95,26],[92.5,31.5],[87.5,33],[83,30.5]] },
+    /* سكن العمال — سكن عمال 1 و2 أعلى المصطبة 6 */
+    { id: "res-workers", nameAr: "سكن العمال — أعلى المصطبة 6", layer: "residential", color: "#7c5a8f",
+      polygon: [[24,17.5],[26,11.5],[31,8],[37,5.5],[43,6],[47.5,9.5],[46.5,15],[40,16.8],[33,18.5],[28,18.8]] },
+    { id: "construction", nameAr: "المنطقة الإنشائية", layer: "construction", color: "#b8913f", from: "sup1" }
+  ],
   /* ------------------------------------------------------------------
      نطاقات الحركة — مسارات مفاهيمية (ليست GPS)
      ------------------------------------------------------------------ */
@@ -357,19 +373,18 @@ const BAYMOUNT_CONFIG = {
       gates: true,        /* المداخل */
       supervisors: true,  /* المشرفون */
       sectors: false,     /* نطاقات الإشراف */
-      radios: false,      /* أجهزة اللاسلكي */
+      radios: true,      /* أجهزة اللاسلكي */
       mobility: true,     /* وسائل الانتقال */
       residential: false, /* المناطق السكنية */
       construction: true, /* المناطق الإنشائية */
       routes: false       /* المسارات / نطاق الحركة */
     },
+    /* only these appear in the layers panel — services, radios and mobility
+       are always on (their icons ride on the markers themselves) */
     layerLabels: {
-      services: "الخدمات الأمنية",
       gates: "المداخل",
       supervisors: "المشرفون",
       sectors: "نطاقات الإشراف",
-      radios: "أجهزة اللاسلكي",
-      mobility: "وسائل الانتقال",
       residential: "المناطق السكنية",
       construction: "المناطق الإنشائية",
       routes: "المسارات / نطاق الحركة"

@@ -310,7 +310,10 @@ body[data-focus="supervision"] #g-sectors polygon, #g-sectors.on polygon{ pointe
 
 /* residential / construction tints */
 #g-zones polygon{ vector-effect:non-scaling-stroke; }
-.zone-tint{ fill-opacity:.07; stroke:none; transition:opacity .5s; }
+.zone-tint{
+  fill-opacity:.22; stroke-width:2.2; stroke-opacity:.9; stroke-dasharray:2 1.4;
+  vector-effect:non-scaling-stroke; stroke-linejoin:round; transition:opacity .5s;
+}
 #g-zoneres, #g-zonecon{ opacity:0; transition:opacity .5s; }
 #g-zoneres.on, #g-zonecon.on{ opacity:1; }
 
@@ -943,13 +946,19 @@ body.editing .marker .m-pin{ outline:1.5px dashed var(--accent); outline-offset:
    ===================================================================== */
 #printRoot{ display:none; }
 @media print{
-  @page{ size:A3 landscape; margin:8mm; }
+  /* no fixed size: the sheet the person picks (A4 on a phone, A3 in the office)
+     drives the layout, so nothing overflows onto extra pages */
+  @page{ margin:8mm; }
   html, body{ height:auto; overflow:visible; background:#fff !important; color:#161a1f !important; }
   #app, #intro, #toast, .sheet, #editBar{ display:none !important; }
   #printRoot{ display:block !important; font-family:var(--font); color:#161a1f; }
 
-  .pr-page{ break-after:page; page-break-after:always; height:98.2vh; display:flex; flex-direction:column; overflow:hidden; }
-  .pr-page.p2{ break-after:auto; page-break-after:auto; height:auto; min-height:0; display:block; overflow:visible; }
+  /* page 1 is the map; 2 and 3 flow together on a wide sheet and split on a narrow one */
+  .pr-page{ display:block; }
+  .pr-page.p1{ break-after:page; page-break-after:always; }
+  .p2, .p3{ break-inside:auto; }
+  .p3 .pr-band{ display:none; }          /* one band per sheet on wide paper */
+  .p2 > *, .p3 > *{ break-inside:avoid; }
 
   /* ---- header band ---- */
   .pr-band{
@@ -966,9 +975,11 @@ body.editing .marker .m-pin{ outline:1.5px dashed var(--accent); outline-offset:
   .pr-conf{ border:1px dashed #6d6f68; border-radius:99px; padding:2px 10px; font-size:8px; white-space:nowrap; }
 
   /* ---- page 1: the map ---- */
-  .pr-mapwrap{ flex:1 1 auto; min-height:0; display:flex; align-items:center; justify-content:center; padding:6px 0 4px; }
-  .pr-canvas{ position:relative; max-height:100%; max-width:100%; height:100%; }
-  .pr-canvas > img{ position:absolute; inset:0; width:100%; height:100%; border:1px solid #d8d4c9; border-radius:6px; }
+  /* the map box is sized from the page height with no aspect-ratio/height:100%
+     tricks — iOS Safari drops those while rasterising a PDF */
+  .pr-mapwrap{ display:flex; justify-content:center; padding:7px 0 5px; }
+  .pr-canvas{ position:relative; width:min(100%, calc(82vh / var(--pa, 1.05))); }
+  .pr-canvas > img{ display:block; width:100%; height:auto; border:1px solid #d8d4c9; border-radius:6px; }
   .pr-canvas > svg{ position:absolute; inset:0; width:100%; height:100%; }
 
   .pm{ position:absolute; transform:translate(50%,-50%); z-index:2; }
@@ -998,7 +1009,7 @@ body.editing .marker .m-pin{ outline:1.5px dashed var(--accent); outline-offset:
 
   /* ---- page 1 footer: legend strip ---- */
   .pr-mapfoot{
-    flex:none; display:flex; align-items:center; flex-wrap:wrap; gap:7px 14px;
+    display:flex; align-items:center; flex-wrap:wrap; gap:7px 14px;
     border-top:2px solid #181b20; padding-top:5px; font-size:8.4px; color:#3c4046;
   }
   .lgi{ display:inline-flex; align-items:center; gap:5px; font-weight:600; }
@@ -1010,7 +1021,7 @@ body.editing .marker .m-pin{ outline:1.5px dashed var(--accent); outline-offset:
   .pr-note{ width:100%; font-size:7.2px; color:#8a8d84; }
 
   /* ---- page 2 ---- */
-  .p2{ padding-top:6px; }
+  .p2, .p3{ padding-top:4px; }
   .pr-stats{ display:grid; grid-template-columns:repeat(5,1fr); gap:8px; margin:8px 0 12px; }
   .pr-stat{
     border:1px solid #ccc8bd; border-inline-start:3.5px solid #181b20; border-radius:8px; padding:8px 12px 7px;
@@ -1052,4 +1063,25 @@ body.editing .marker .m-pin{ outline:1.5px dashed var(--accent); outline-offset:
     font-size:8px; color:#8a8d84;
   }
   .pr-foot .l{ margin-inline-start:auto; letter-spacing:.18em; }
+
+  /* ---- narrow sheets: A4 portrait / phone ---- */
+  @media (max-width:950px){
+    .p2{ break-after:page; page-break-after:always; }
+    .p3 .pr-band{ display:flex; }
+    .pr-band{ gap:10px; padding:8px 12px; }
+    .pr-band h1{ font-size:13.5px; }
+    .pr-band .sub{ font-size:6.5px; letter-spacing:.14em; }
+    .pr-band-meta{ flex-direction:column; align-items:flex-start; gap:3px; font-size:8px; }
+    .pr-shift{ font-size:8.5px; padding:2px 9px; }
+    .pr-conf{ font-size:7px; }
+    .pr-canvas{ width:100%; }
+    .pr-stats{ grid-template-columns:repeat(5,1fr); gap:6px; }
+    .pr-stat{ padding:7px 8px; }
+    .pr-stat b{ font-size:19px; }
+    .pr-stat span{ font-size:7.4px; }
+    .pr-mapfoot{ gap:5px 10px; font-size:7.4px; }
+    .pr-sups{ grid-template-columns:1fr 1fr; }
+    table.pr-mx{ font-size:8.4px; }
+    .pr-mx th{ font-size:7.4px; }
+  }
 }

@@ -143,9 +143,14 @@ function buildOverlay() {
     svgEl("path", { d, class: "halo" }, g);
     svgEl("path", { d, class: "flow" }, g);
   }
-  const s3 = supById("sup3"), s1 = supById("sup1");
-  if (s3) svgEl("polygon", { points: s3.polygon.map(p => p.join(",")).join(" "), class: "zone-tint", fill: s3.color }, gZr);
-  if (s1) svgEl("polygon", { points: s1.polygon.map(p => p.join(",")).join(" "), class: "zone-tint", fill: s1.color }, gZc);
+  (C.zones || []).forEach(z => {
+    const poly = z.polygon || (z.from && supById(z.from) ? supById(z.from).polygon : null);
+    if (!poly) return;
+    const g = z.layer === "construction" ? gZc : gZr;
+    const el = svgEl("polygon", { points: poly.map(pt => pt.join(",")).join(" "), class: "zone-tint" }, g);
+    el.setAttribute("fill", z.color);
+    el.setAttribute("stroke", z.color);
+  });
 }
 
 /* ------------------------------------------------------------------ */
@@ -257,7 +262,7 @@ function applyLayers() {
   $("#g-sectors").classList.toggle("on", !!S.layers.sectors);
   $("#g-routes").classList.toggle("on", !!S.layers.routes);
   $("#g-zoneres").classList.toggle("on", !!S.layers.residential);
-  $("#g-zonecon").classList.toggle("on", !!S.layers.construction && false); /* tint reserved; dots carry the layer */
+  $("#g-zonecon").classList.toggle("on", !!S.layers.construction);
   declutter();
 }
 function buildLegend() {
@@ -274,6 +279,8 @@ function buildLegend() {
     <div class="lg-h">الحالة</div>
     <div class="lg-row"><span class="lg-sym"><span class="mini" style="background:var(--accent)"><b style="font-size:9px">2</b></span></span> عدد الأفراد بالخدمة</div>
     <div class="lg-row"><span class="lg-sym"><span class="mini" style="opacity:.4"><svg class="ic"><use href="#i-off"/></svg></span></span> ${C.shiftRules.nightOffShort}</div>
+    <div class="lg-h">مناطق المخطط</div>
+    ${(C.zones || []).map(z => `<div class="lg-row"><span class="lg-sym"><span class="lg-sec" style="background:${z.color}"></span></span> ${z.nameAr}</div>`).join("")}
     <div class="lg-h">نطاقات الإشراف</div>
     ${C.supervisors.map(s => `<div class="lg-row"><span class="lg-sym"><span class="lg-sec" style="background:${s.color}"></span></span> ${s.nameAr.replace("مشرف ", "")}</div>`).join("")}
     <div class="lg-h">التجهيزات</div>
@@ -1044,18 +1051,18 @@ function buildPrint() {
   <section class="pr-page p1">
     <header class="pr-band">
       <span class="pr-mark"><svg viewBox="0 0 24 24"><use href="#i-shield"/></svg></span>
-      <div>
+      <div class="pr-ttl">
         <h1>${C.meta.titleAr} — ${C.meta.projectAr}</h1>
         <div class="sub lat">${C.meta.projectEn} · ${C.meta.titleEn} · ${C.meta.developerEn}</div>
       </div>
       <div class="pr-band-meta">
         <span class="pr-shift">${shiftAr} · ${isDay ? t.day : t.night} فرد أمن · ${t.supPerShift} مشرفين</span>
         <span>${dateStr}</span>
-        <span class="pr-conf">سري · لمراجعة الإدارة — <span class="lat">CONFIDENTIAL</span></span>
+        <span class="pr-conf">سري · لمراجعة الإدارة</span>
       </div>
     </header>
-    <div class="pr-mapwrap"><div class="pr-canvas" style="aspect-ratio:1/${C.meta.planAspect}">
-      <img src="${C.meta.planImage}" alt="">
+    <div class="pr-mapwrap"><div class="pr-canvas" style="--pa:${C.meta.planAspect}">
+      <img src="${C.meta.printImage || C.meta.planImage}" alt="">
       <svg viewBox="0 0 100 100" preserveAspectRatio="none">${sectorsSvg}</svg>
       ${pm}${sm}${am}
     </div></div>
@@ -1073,8 +1080,8 @@ function buildPrint() {
   <section class="pr-page p2">
     <header class="pr-band">
       <span class="pr-mark"><svg viewBox="0 0 24 24"><use href="#i-shield"/></svg></span>
-      <div>
-        <h1>مصفوفة الانتشار والقوة</h1>
+      <div class="pr-ttl">
+        <h1>مصفوفة الانتشار</h1>
         <div class="sub lat">DEPLOYMENT MATRIX · ${C.meta.projectEn}</div>
       </div>
       <div class="pr-band-meta"><span class="pr-shift">${shiftAr}</span><span>${dateStr}</span></div>
@@ -1094,6 +1101,17 @@ function buildPrint() {
         <td colspan="2">${v.ok ? "✓ توزيع الخدمات مطابق للقوة المعتمدة — حضور يومي " + t.daily + " فرد" : "⚠ راجع التوزيع"}</td></tr>
       </tbody>
     </table>
+  </section>
+
+  <section class="pr-page p3">
+    <header class="pr-band">
+      <span class="pr-mark"><svg viewBox="0 0 24 24"><use href="#i-shield"/></svg></span>
+      <div class="pr-ttl">
+        <h1>القوة والتجهيزات والقيادة</h1>
+        <div class="sub lat">FORCE · EQUIPMENT · COMMAND</div>
+      </div>
+      <div class="pr-band-meta"><span class="pr-shift">${shiftAr}</span><span>${dateStr}</span></div>
+    </header>
     <div class="pr-h">حصر التجهيزات</div>
     <div class="pr-eqrow">
       ${Object.keys(C.equipmentInventory).map(k => `<span class="pr-eq"><svg><use href="#${C.equipmentTypes[k].icon}"/></svg> ${C.equipmentTypes[k].ar} <b>${C.equipmentInventory[k]}</b></span>`).join("")}
@@ -1110,7 +1128,7 @@ function buildPrint() {
     <div class="pr-h">القيادة والسيطرة</div>
     <div class="pr-cmd">
       مدير الأمن ← مدير العمليات ← 4 مشرفي قطاعات ← أفراد الأمن (${t.daily})
-      <small>الدعم الإداري: 2 شئون إدارية · غرفة مراقبة وعمليات تعمل نهاراً وليلاً</small>
+      <small>الدعم الإداري: 2 شئون إدارية · غرفة مراقبة وعمليات نهاراً وليلاً</small>
     </div>
     <div class="pr-foot">
       <span>${C.meta.positionsNote}</span>
@@ -1118,6 +1136,7 @@ function buildPrint() {
     </div>
   </section>`;
 }
+
 function doPrint() { buildPrint(); setTimeout(() => window.print(), 60); }
 
 /* ------------------------------------------------------------------ */

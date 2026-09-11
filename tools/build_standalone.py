@@ -27,7 +27,7 @@ def css_repl(m):
 css = re.sub(r'url\("\.\./assets/([^"]+)"\)', css_repl, css)
 
 # ---- inline asset references in JS/data (assets/...) ----
-for rel in ["assets/masterplan.jpg", "assets/aerial.jpg"]:
+for rel in ["assets/masterplan.jpg", "assets/masterplan-print.jpg", "assets/aerial.jpg"]:
     uri = datauri(rel)
     data = data.replace(f'"{rel}"', f'"{uri}"')
 
