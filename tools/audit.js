@@ -33,10 +33,10 @@ function check(label, got, want) {
   pass = pass && ok;
   console.log(`  ${ok ? "✓" : "✗"} ${label}: computed=${got} expected=${want}${ok ? "" : "  ← MISMATCH " + (got > want ? "+" : "") + (got - want)}`);
 }
-check("Day officers   / الوردية النهارية", day, exp.dayOfficers);
-check("Night officers / الوردية الليلية", night, exp.nightOfficers);
+check("Day officers   / الخدمة النهارية", day, exp.dayOfficers);
+check("Night officers / الخدمة الليلية", night, exp.nightOfficers);
 check("Daily officers / الحضور اليومي", daily, exp.dailyOfficers);
-check("Supervisors per shift / مشرفو الوردية", supPerShift, exp.supervisorsPerShift);
+check("Supervisors per shift / مشرفو الخدمة", supPerShift, exp.supervisorsPerShift);
 check("Daily supervisors / حضور المشرفين", dailySup, exp.dailySupervisors);
 
 const dayOnly = posts.filter(p => p.day > 0 && p.night === 0).map(p => p.nameAr);
@@ -45,6 +45,6 @@ console.log("  خدمات خارج الخدمة ليلاً (" + dayOnly.length +
 dayOnly.forEach(n => console.log("   • " + n));
 console.log("  إجمالي نقاط الخدمة: " + posts.length);
 console.log("──────────────────────────────────────────────");
-console.log(pass ? "  RESULT: PASS ✓ — التوزيع مطابق للقوة المعتمدة" : "  RESULT: FAIL ✗ — راجع الأعداد قبل التسليم");
+console.log(pass ? "  RESULT: PASS ✓ — توزيع الخدمات مطابق للقوة المعتمدة" : "  RESULT: FAIL ✗ — راجع الأعداد قبل التسليم");
 console.log("──────────────────────────────────────────────");
 process.exit(pass ? 0 : 1);

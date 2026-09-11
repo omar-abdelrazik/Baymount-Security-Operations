@@ -33,7 +33,7 @@ function validation() {
   if (t.day !== e.dayOfficers) issues.push({ ar: "نهاري", diff: t.day - e.dayOfficers });
   if (t.night !== e.nightOfficers) issues.push({ ar: "ليلي", diff: t.night - e.nightOfficers });
   if (t.daily !== e.dailyOfficers) issues.push({ ar: "الحضور اليومي", diff: t.daily - e.dailyOfficers });
-  if (t.supPerShift !== e.supervisorsPerShift) issues.push({ ar: "مشرفو الوردية", diff: t.supPerShift - e.supervisorsPerShift });
+  if (t.supPerShift !== e.supervisorsPerShift) issues.push({ ar: "مشرفو الخدمة", diff: t.supPerShift - e.supervisorsPerShift });
   return { t, e, ok: issues.length === 0, issues };
 }
 function renderValidation() {
@@ -41,7 +41,7 @@ function renderValidation() {
   el.classList.toggle("ok", v.ok); el.classList.toggle("bad", !v.ok);
   el.querySelector("use").setAttribute("href", v.ok ? "#i-check" : "#i-warn");
   txt.textContent = v.ok
-    ? `توزيع الورديات مطابق للقوة المعتمدة — نهاري ${v.t.day}/${v.e.dayOfficers} · ليلي ${v.t.night}/${v.e.nightOfficers}`
+    ? `توزيع الخدمات مطابق للقوة المعتمدة — نهاري ${v.t.day}/${v.e.dayOfficers} · ليلي ${v.t.night}/${v.e.nightOfficers}`
     : "فرق في توزيع القوة: " + v.issues.map(i => `${i.ar} ${i.diff > 0 ? "+" : ""}${i.diff}`).join(" · ");
   $("#sbDaily").textContent = v.t.daily;
   $("#sbDailySup").textContent = v.t.dailySup;
@@ -49,7 +49,7 @@ function renderValidation() {
   $("#cntNight").textContent = v.t.night;
   /* Safari's download-preview exposes a stripped console — never assume console.table */
   try {
-    const row = { "نهاري": v.t.day, "ليلي": v.t.night, "حضور يومي": v.t.daily, "مشرفون/وردية": v.t.supPerShift, "مطابق": v.ok };
+    const row = { "نهاري": v.t.day, "ليلي": v.t.night, "حضور يومي": v.t.daily, "مشرفون/خدمة": v.t.supPerShift, "مطابق": v.ok };
     (console.table ? console.table : console.log).call(console, row);
   } catch (e) { /* non-essential */ }
   return v;
@@ -166,6 +166,7 @@ function buildMarkers() {
     const isGate = p.category === "entrance";
     const m = markerShell(p.x, p.y, `cat-${p.category} cat-post-like lyr-${isGate ? "gates" : "services"}`, p.id);
     if (isGate || p.category === "residential" || p.category === "control") m.classList.add("lbl-key");
+    if (p.labelPos === "top") m.classList.add("lbl-top");
     if (p.equipment.includes("radio")) m.classList.add("has-radio");
     m.innerHTML = `
       <button class="m-body" aria-label="${p.nameAr}">
@@ -207,7 +208,7 @@ function buildMarkers() {
   /* assets */
   C.assets.forEach(a => {
     if (a.type !== "mastaba") {
-      const m = markerShell(a.x, a.y, "cat-asset cat-industrial lbl-key", a.id);
+      const m = markerShell(a.x, a.y, "cat-asset cat-industrial" + (a.quietLabel ? "" : " lbl-key"), a.id);
       m.innerHTML = `
         <button class="m-body" aria-label="${a.nameAr}">
           <span class="m-pin"><svg><use href="#${a.icon || "i-terrace"}"/></svg></span>
@@ -257,6 +258,7 @@ function applyLayers() {
   $("#g-routes").classList.toggle("on", !!S.layers.routes);
   $("#g-zoneres").classList.toggle("on", !!S.layers.residential);
   $("#g-zonecon").classList.toggle("on", !!S.layers.construction && false); /* tint reserved; dots carry the layer */
+  declutter();
 }
 function buildLegend() {
   const el = $("#legendBody");
@@ -270,7 +272,7 @@ function buildLegend() {
     <div class="lg-row">${mini("i-diamond", "dia")} مشرف قطاع</div>
     <div class="lg-row">${mini("i-crusher")} كسارة الحجارة</div>
     <div class="lg-h">الحالة</div>
-    <div class="lg-row"><span class="lg-sym"><span class="mini" style="background:var(--accent)"><b style="font-size:9px">2</b></span></span> عدد الأفراد بالوردية</div>
+    <div class="lg-row"><span class="lg-sym"><span class="mini" style="background:var(--accent)"><b style="font-size:9px">2</b></span></span> عدد الأفراد بالخدمة</div>
     <div class="lg-row"><span class="lg-sym"><span class="mini" style="opacity:.4"><svg class="ic"><use href="#i-off"/></svg></span></span> ${C.shiftRules.nightOffShort}</div>
     <div class="lg-h">نطاقات الإشراف</div>
     ${C.supervisors.map(s => `<div class="lg-row"><span class="lg-sym"><span class="lg-sec" style="background:${s.color}"></span></span> ${s.nameAr.replace("مشرف ", "")}</div>`).join("")}
@@ -287,13 +289,14 @@ function buildLegend() {
 function computeFit() {
   const r = stage.getBoundingClientRect();
   const short = r.height < 520;
-  const padX = short ? 10 : r.width < 640 ? 14 : r.width < 900 ? 24 : 120;
-  const padT = short ? 8 : r.width < 640 ? 62 : 76;
-  const padB = short ? 8 : r.width < 640 ? 62 : 96;
+  const padX = short ? 10 : r.width < 640 ? 10 : r.width < 900 ? 18 : 34;
+  const padT = short ? 8 : r.width < 640 ? 58 : 60;
+  const padB = short ? 8 : r.width < 640 ? 52 : 50;
   let h = r.height - padT - padB;
   let w = h / C.meta.planAspect;
   if (w > r.width - padX * 2) { w = r.width - padX * 2; h = w * C.meta.planAspect; }
-  S.fit = { w, h, bx: (r.width - w) / 2, by: padT + (r.height - padT - padB - h) / 2 };
+  const availH = r.height - padT - padB;
+  S.fit = { w, h, bx: (r.width - w) / 2, by: padT + (availH - h) / 2, availH, slack: (availH - h) / availH };
   tiltEl.style.width = w + "px";
   tiltEl.style.height = h + "px";
 }
@@ -302,6 +305,7 @@ function applyCam() {
   const inv = 1 / clamp(S.cam.k, 0.85, 2.1);
   tiltEl.style.setProperty("--inv", inv.toFixed(3));
   stage.dataset.zoom = S.cam.k > 2.1 ? "near" : S.cam.k > 1.32 ? "mid" : "far";
+  declutter();
 }
 function camHome(animate) {
   const r = stage.getBoundingClientRect();
@@ -310,6 +314,11 @@ function camHome(animate) {
     /* short landscape screens: open zoomed to a readable width-filling view */
     const k = clamp((r.width * 0.85) / S.fit.w, 1, 2.6);
     target = { x: r.width / 2 - k * (S.fit.w * 0.5), y: r.height / 2 - k * (S.fit.h * 0.4), k };
+  } else if (r.width < 780 && S.fit.slack > 0.2) {
+    /* portrait phones: the fit is width-bound, so use the spare height */
+    const k = Math.min(1.18, (S.fit.availH * 0.9) / S.fit.h);
+    const cy = S.fit.by + S.fit.h / 2;
+    target = { x: r.width / 2 - k * S.fit.w / 2, y: cy - k * S.fit.h / 2, k };
   } else {
     target = { x: S.fit.bx, y: S.fit.by, k: 1 };
   }
@@ -418,6 +427,75 @@ function zoomStep(f) {
   camTo({ x: mx - wx * nk, y: my - wy * nk, k: nk }, 550);
 }
 
+
+/* ------------------------------------------------------------------ */
+/* 07b · LABEL DECLUTTERING — map-engine style placement                */
+/*    Labels are never allowed to cover another marker's pin or label.  */
+/*    Each label tries below the pin, then above, otherwise it hides.   */
+/* ------------------------------------------------------------------ */
+const LABEL_RANK = { entrance: 1, control: 2, residential: 3, warehouse: 4, admin: 4, post: 5, industrial: 6, mastaba: 8 };
+function markerRank(m) {
+  if (m.classList.contains("cat-entrance")) return LABEL_RANK.entrance;
+  if (m.classList.contains("cat-control")) return LABEL_RANK.control;
+  if (m.classList.contains("cat-residential")) return LABEL_RANK.residential;
+  if (m.classList.contains("cat-industrial")) return LABEL_RANK.industrial;
+  if (m.classList.contains("cat-mastaba")) return LABEL_RANK.mastaba;
+  if (m.classList.contains("cat-warehouse") || m.classList.contains("cat-admin")) return LABEL_RANK.admin;
+  return LABEL_RANK.post;
+}
+const hits = (a, b, pad) => !(a.right + pad < b.left || a.left - pad > b.right || a.bottom + pad < b.top || a.top - pad > b.bottom);
+
+let declutterT = null;
+function declutter(delay) {
+  clearTimeout(declutterT);
+  declutterT = setTimeout(runDeclutter, delay === undefined ? 90 : delay);
+}
+function runDeclutter() {
+  /* wait for the camera to settle so we measure final positions once */
+  if (S.camAnim || stage.classList.contains("dragging")) { declutter(120); return; }
+  const view = stage.getBoundingClientRect();
+  const near = S.cam.k > 2.15;
+  const all = $$(".marker", markersEl).filter(m => m.offsetParent !== null);
+
+  /* pins and sector chips are sacred — a label may never sit on one */
+  const pins = [];
+  all.forEach(m => {
+    const pin = m.querySelector(".m-pin");
+    if (pin) pins.push({ id: m.dataset.id, r: pin.getBoundingClientRect() });
+  });
+  const taken = [];
+  const supMode = body.dataset.focus === "supervision";
+
+  const candidates = all.filter(m => {
+    if (m.classList.contains("sector-chip")) return false;          /* the chip is its own label */
+    if (supMode && !m.classList.contains("cat-asset")) return false;/* sector mode reads by chip */
+    if (m.classList.contains("cat-supervisor")) return false;       /* identified by S1–S4 */
+    if (m.classList.contains("off")) return false;                  /* carries its own night tag */
+    if (m.classList.contains("cat-mastaba") && !near) return false; /* only once zoomed in */
+    return !!m.querySelector(".m-label");
+  }).sort((a, b) => markerRank(a) - markerRank(b));
+
+  /* anything not in the running loses its label */
+  const running = new Set(candidates);
+  all.forEach(m => { if (!running.has(m)) m.classList.remove("lbl-on"); });
+
+  candidates.forEach(m => {
+    const label = m.querySelector(".m-label");
+    const wasTop = m.classList.contains("lbl-top");
+    m.classList.add("lbl-on");                 /* measure in its final geometry */
+    let placed = false;
+    for (const top of [wasTop, !wasTop]) {
+      m.classList.toggle("lbl-top", top);
+      const r = label.getBoundingClientRect();
+      const inside = r.left > view.left + 2 && r.right < view.right - 2 && r.top > view.top + 2 && r.bottom < view.bottom - 2;
+      const clearOfPins = !pins.some(p => p.id !== m.dataset.id && hits(r, p.r, 1));
+      const clearOfLabels = !taken.some(t => hits(r, t, 3));
+      if (inside && clearOfPins && clearOfLabels) { taken.push(r); placed = true; break; }
+    }
+    if (!placed) { m.classList.remove("lbl-on"); m.classList.toggle("lbl-top", wasTop); }
+  });
+}
+
 /* ------------------------------------------------------------------ */
 /* 08 · SHIFT ENGINE                                                   */
 /* ------------------------------------------------------------------ */
@@ -433,7 +511,7 @@ function setShift(shift, opts) {
   /* animated headline counter */
   animNum($("#sbOfficers"), shift === "day" ? t.day : t.night, 850);
   $("#sbSup").textContent = t.supPerShift;
-  $("#sbShift").textContent = shift === "day" ? "الوردية النهارية" : "الوردية الليلية";
+  $("#sbShift").textContent = shift === "day" ? "الخدمة النهارية" : "الخدمة الليلية";
   /* markers: stagger the four services out/in */
   let stag = 0;
   C.securityPosts.forEach(p => {
@@ -449,6 +527,7 @@ function setShift(shift, opts) {
     bdy.setAttribute("aria-label", p.nameAr + (off ? " — " + C.shiftRules.nightOffLabel : ` — ${n} فرد أمن`));
   });
   if (S.sel) renderDetail(S.sel);
+  declutter();
 }
 
 /* ------------------------------------------------------------------ */
@@ -475,6 +554,7 @@ function setFocus(f) {
   $("#btnFocusServices").setAttribute("aria-pressed", f === "services");
   $("#btnFocusSup").setAttribute("aria-pressed", f === "supervision");
   if (f === "services") clearSectorFocus();
+  declutter();
 }
 function clearSectorFocus() {
   S.selSector = null;
@@ -522,7 +602,7 @@ function selectPost(id) {
   markSelected(id);
   renderDetail(S.sel);
   openDetail();
-  flyTo(p.x, p.y, Math.max(S.cam.k, 1.9), 950);
+  flyTo(p.x, p.y, Math.max(S.cam.k, 1.55), 900);
 }
 function selectSupervisor(id) {
   const sp = supById(id); if (!sp) return;
@@ -545,7 +625,7 @@ function selectAsset(id) {
   markSelected(id);
   renderDetail(S.sel);
   openDetail();
-  flyTo(a.x, a.y, Math.max(S.cam.k, 2.0), 950);
+  flyTo(a.x, a.y, Math.max(S.cam.k, 1.7), 900);
 }
 function renderDetail(sel) {
   const head = $("#detailHead"), bodyEl = $("#detailBody");
@@ -564,14 +644,14 @@ function renderDetail(sel) {
         <div class="dt-status">
           <span class="st-dot ${active ? "" : "off"}"></span>
           <span>${both ? "نشط نهاراً وليلاً" : C.shiftRules.nightOffShort}
-            <span class="sub">${active ? (S.shift === "day" ? "في الخدمة — الوردية النهارية" : "في الخدمة — الوردية الليلية") : C.shiftRules.nightOffLabel}</span>
+            <span class="sub">${active ? (S.shift === "day" ? "في الخدمة — نهاراً" : "في الخدمة — ليلاً") : C.shiftRules.nightOffLabel}</span>
           </span>
         </div>
       </div>
       <div class="dt-sec">
         <div class="dt-k">${icon("i-users")} القوة</div>
         <div class="dt-force">
-          <b class="num">${p[S.shift]}</b><span class="u">فرد أمن<br>بالوردية الحالية</span>
+          <b class="num">${p[S.shift]}</b><span class="u">فرد أمن<br>بالخدمة الحالية</span>
           <span class="alt num-wrap">نهاري <b class="num" style="font-size:13px;font-weight:700">${p.day}</b> · ليلي <b class="num" style="font-size:13px;font-weight:700">${p.night}</b></span>
         </div>
       </div>
@@ -615,7 +695,7 @@ function renderDetail(sel) {
       </div>
       <div class="dt-sec">
         <div class="dt-k">${icon("i-sun")} الحضور</div>
-        <div class="dt-note" style="color:var(--ink-2)">مشرف بكل وردية — نهاراً وليلاً</div>
+        <div class="dt-note" style="color:var(--ink-2)">مشرف نهاراً ومشرف ليلاً لكل قطاع</div>
       </div>
       ${sp.route ? `
       <div class="dt-actions">
@@ -715,7 +795,7 @@ function renderMatrix() {
   $("#matrixBody").innerHTML = `
     <table class="mx">
       <thead><tr>
-        <th style="width:27%">الموقع</th><th>الوردية النهارية</th><th>الوردية الليلية</th><th style="width:19%">التجهيز</th><th style="width:24%">المشرف المسؤول</th>
+        <th style="width:27%">الموقع</th><th>الخدمة النهارية</th><th>الخدمة الليلية</th><th style="width:19%">التجهيز</th><th style="width:24%">المشرف المسؤول</th>
       </tr></thead>
       <tbody>
         ${rows}
@@ -727,12 +807,12 @@ function renderMatrix() {
         </tr>
       </tbody>
     </table>
-    <div class="mg-h" style="margin-top:26px">المشرفون — ${t.supPerShift} لكل وردية · ${t.dailySup} حضور يومي</div>
+    <div class="mg-h" style="margin-top:26px">المشرفون — ${t.supPerShift} لكل خدمة · ${t.dailySup} حضور يومي</div>
     <table class="mx">
       <thead><tr><th style="width:26%">القطاع</th><th>نهاري</th><th>ليلي</th><th>حضور يومي</th><th style="width:18%">التجهيز والتنقل</th><th style="width:22%">النطاق</th></tr></thead>
       <tbody>${supRows}</tbody>
     </table>
-    <div class="mx-note">${icon("i-moon")} الخدمات المعلَّمة «${C.shiftRules.nightOffShort}» تخرج من الخدمة آلياً في الوردية الليلية وتعود نهاراً.</div>`;
+    <div class="mx-note">${icon("i-moon")} الخدمات المعلَّمة «${C.shiftRules.nightOffShort}» تخرج من الخدمة آلياً في الخدمة الليلية وتعود نهاراً.</div>`;
 }
 
 /* ------------------------------------------------------------------ */
@@ -876,10 +956,10 @@ function goStep(i) {
         <span class="track"><i style="width:${((i + 1) / steps.length) * 100}%"></i></span></div>
       <div class="pc-title">${st.title}</div>
       ${st.body ? `<div class="pc-body">${st.body}</div>` : ""}`;
-    if (st.stat === "day") inner += `<div class="pc-stat"><b class="num" id="pcBig">${t.day}</b><span>فرد أمن<br>الوردية النهارية</span></div>`;
+    if (st.stat === "day") inner += `<div class="pc-stat"><b class="num" id="pcBig">${t.day}</b><span>فرد أمن<br>الخدمة النهارية</span></div>`;
     if (st.stat === "night") {
       const startVal = S.shift === "night" ? t.night : t.day;
-      inner += `<div class="pc-stat"><b class="num" id="pcBig">${startVal}</b><span>فرد أمن<br>الوردية الليلية</span></div>`;
+      inner += `<div class="pc-stat"><b class="num" id="pcBig">${startVal}</b><span>فرد أمن<br>الخدمة الليلية</span></div>`;
     }
     if (st.summary) {
       const v = validation();
@@ -890,9 +970,9 @@ function goStep(i) {
           <div class="cell"><b class="num">${t.day}</b><span>الخدمة النهارية</span></div>
           <div class="cell"><b class="num">${t.night}</b><span>الخدمة الليلية</span></div>
           <div class="cell"><b class="num">${t.points}</b><span>نقطة / نطاق أمني</span></div>
-          <div class="cell"><b class="num">${t.supPerShift}</b><span>قطاعات إشراف بكل وردية</span></div>
+          <div class="cell"><b class="num">${t.supPerShift}</b><span>قطاعات إشراف بكل خدمة</span></div>
         </div>
-        <div class="pc-valid">${icon("i-check")} ${v.ok ? "توزيع الورديات مطابق للقوة المعتمدة" : "راجع توزيع القوة"}</div>`;
+        <div class="pc-valid">${icon("i-check")} ${v.ok ? "توزيع الخدمات مطابق للقوة المعتمدة" : "راجع توزيع القوة"}</div>`;
     }
     card.innerHTML = inner;
     card.classList.remove("slide");
@@ -926,65 +1006,117 @@ function prevStep() { goStep(S.step - 1); }
 /* ------------------------------------------------------------------ */
 function buildPrint() {
   const t = totals(), v = validation();
-  const shiftAr = S.shift === "day" ? "الوردية النهارية" : "الوردية الليلية";
-  const d = new Date();
-  const dateStr = d.toLocaleDateString("ar-EG", { year: "numeric", month: "long", day: "numeric" });
+  const isDay = S.shift === "day";
+  const shiftAr = isDay ? "الخدمة النهارية" : "الخدمة الليلية";
+  const dateStr = new Date().toLocaleDateString("ar-EG", { year: "numeric", month: "long", day: "numeric" });
+
+  /* supervision sectors as translucent zones on the printed map */
+  const sectorsSvg = C.supervisors.map(sp =>
+    `<polygon points="${sp.polygon.map(pt => pt.join(",")).join(" ")}" fill="${sp.color}" fill-opacity=".13" stroke="${sp.color}" stroke-opacity=".85" stroke-width=".33" stroke-dasharray="1 .8"/>`).join("");
+
   const pm = C.securityPosts.map(p => {
-    const off = p[S.shift] === 0;
-    return `<span class="pm-marker" style="inset-inline-start:${100 - p.x}%;top:${p.y}%">
-      <span class="pm-pin ${p.category === "entrance" ? "ent" : ""} ${off ? "offp" : ""}">${off ? "×" : p[S.shift]}</span>
-      <span class="pm-lbl">${p.nameAr}</span></span>`;
+    const n = p[S.shift]; const off = n === 0;
+    return `<span class="pm ${off ? "pm-off" : ""} ${p.category === "entrance" ? "pm-ent" : ""}" style="inset-inline-start:${100 - p.x}%;top:${p.y}%">
+      <i class="pm-pin">${off ? "×" : n}</i><i class="pm-lbl">${p.nameAr}</i></span>`;
   }).join("");
-  const extras = C.assets.filter(a => a.type === "industrial").map(a =>
-    `<span class="pm-marker" style="inset-inline-start:${100 - a.x}%;top:${a.y}%"><span class="pm-pin" style="background:#6b5f3f">⛏</span><span class="pm-lbl">${a.nameAr}</span></span>`).join("");
+  const sm = C.supervisors.map(sp =>
+    `<span class="pm pm-sup" style="inset-inline-start:${100 - sp.anchor.x}%;top:${sp.anchor.y}%;--sc:${sp.color}"><i class="pm-dia"><b class="lat">${sp.code}</b></i></span>`).join("");
+  const am = C.assets.map(a => a.type === "mastaba"
+    ? `<span class="pm pm-mas" style="inset-inline-start:${100 - a.x}%;top:${a.y}%"><i>${a.nameAr.replace(/\D/g, "")}</i></span>`
+    : `<span class="pm pm-ind" style="inset-inline-start:${100 - a.x}%;top:${a.y}%"><i class="pm-pin"><svg><use href="#${a.icon}"/></svg></i><i class="pm-lbl">${a.nameAr}</i></span>`).join("");
+
+  const groups = [...new Set(C.securityPosts.map(p => p.group))];
+  let rows = "";
+  groups.forEach(g => {
+    rows += `<tr class="pgrp"><td colspan="5">${g}</td></tr>`;
+    C.securityPosts.filter(p => p.group === g).forEach(p => {
+      rows += `<tr>
+        <td style="font-weight:700">${p.nameAr}</td>
+        <td>${p.day || "—"}</td>
+        <td class="${p.night ? "" : "off-td"}">${p.night || C.shiftRules.nightOffShort}</td>
+        <td>${p.equipment.map(e => C.equipmentTypes[e].ar).join("، ") || "—"}</td>
+        <td>${supervisorName(p.supervisor).replace("القيادة المباشرة — ", "")}</td>
+      </tr>`;
+    });
+  });
+
   $("#printRoot").innerHTML = `
-    <div class="pr-head">
-      <span class="pr-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><use href="#i-shield"/></svg></span>
+  <section class="pr-page p1">
+    <header class="pr-band">
+      <span class="pr-mark"><svg viewBox="0 0 24 24"><use href="#i-shield"/></svg></span>
       <div>
         <h1>${C.meta.titleAr} — ${C.meta.projectAr}</h1>
-        <div class="pr-sub lat">${C.meta.projectEn} · ${C.meta.titleEn} · ${C.meta.developerEn}</div>
+        <div class="sub lat">${C.meta.projectEn} · ${C.meta.titleEn} · ${C.meta.developerEn}</div>
       </div>
-      <div class="pr-meta">
-        <b>${shiftAr}</b> — ${S.shift === "day" ? t.day : t.night} فرد أمن · ${t.supPerShift} مشرفين<br>
-        تاريخ الإصدار: ${dateStr}<br>
-        <span class="pr-conf">سري · لمراجعة الإدارة — CONFIDENTIAL</span>
+      <div class="pr-band-meta">
+        <span class="pr-shift">${shiftAr} · ${isDay ? t.day : t.night} فرد أمن · ${t.supPerShift} مشرفين</span>
+        <span>${dateStr}</span>
+        <span class="pr-conf">سري · لمراجعة الإدارة — <span class="lat">CONFIDENTIAL</span></span>
       </div>
+    </header>
+    <div class="pr-mapwrap"><div class="pr-canvas" style="aspect-ratio:1/${C.meta.planAspect}">
+      <img src="${C.meta.planImage}" alt="">
+      <svg viewBox="0 0 100 100" preserveAspectRatio="none">${sectorsSvg}</svg>
+      ${pm}${sm}${am}
+    </div></div>
+    <footer class="pr-mapfoot">
+      <span class="lgi"><i class="pm-pin">1</i> نقطة خدمة · عدد الأفراد</span>
+      <span class="lgi"><i class="pm-pin" style="background:#d64a26">1</i> مدخل</span>
+      <span class="lgi"><i class="pm-pin" style="background:#b3afa4">×</i> ${C.shiftRules.nightOffShort}</span>
+      <span class="lgi"><i class="pm-dia" style="--sc:#181b20"></i> مشرف قطاع</span>
+      ${C.supervisors.map(sp => `<span class="lgi"><span class="lgsw" style="background:${sp.color}"></span> ${sp.nameAr.replace("مشرف ", "")}</span>`).join("")}
+      <span class="lg-ok">✓ ${v.ok ? `توزيع الخدمات مطابق للقوة المعتمدة — نهاري ${t.day}/${v.e.dayOfficers} · ليلي ${t.night}/${v.e.nightOfficers} · حضور يومي ${t.daily}` : "راجع توزيع القوة"}</span>
+      <span class="pr-note">${C.meta.positionsNote}</span>
+    </footer>
+  </section>
+
+  <section class="pr-page p2">
+    <header class="pr-band">
+      <span class="pr-mark"><svg viewBox="0 0 24 24"><use href="#i-shield"/></svg></span>
+      <div>
+        <h1>مصفوفة الانتشار والقوة</h1>
+        <div class="sub lat">DEPLOYMENT MATRIX · ${C.meta.projectEn}</div>
+      </div>
+      <div class="pr-band-meta"><span class="pr-shift">${shiftAr}</span><span>${dateStr}</span></div>
+    </header>
+    <div class="pr-stats">
+      <div class="pr-stat hot"><b class="num">${t.daily}</b><span>أفراد الأمن · حضور يومي</span></div>
+      <div class="pr-stat"><b class="num">${t.dailySup}</b><span>مشرفون · حضور يومي</span></div>
+      <div class="pr-stat"><b class="num">${t.day}</b><span>الخدمة النهارية</span></div>
+      <div class="pr-stat"><b class="num">${t.night}</b><span>الخدمة الليلية</span></div>
+      <div class="pr-stat"><b class="num">${t.points}</b><span>نقطة / نطاق أمني</span></div>
     </div>
-    <div class="pr-grid">
-      <div class="pr-map"><img src="${C.meta.planImage}">${pm}${extras}</div>
-      <div class="pr-side">
-        <div class="pr-stats">
-          <div class="pr-stat"><b class="num">${t.daily}</b><span>فرد أمن · حضور يومي</span></div>
-          <div class="pr-stat"><b class="num">${t.dailySup}</b><span>مشرفون · حضور يومي</span></div>
-          <div class="pr-stat"><b class="num">${t.day}</b><span>الخدمة النهارية</span></div>
-          <div class="pr-stat"><b class="num">${t.night}</b><span>الخدمة الليلية</span></div>
-        </div>
-        <div class="pr-h">مصفوفة الانتشار</div>
-        <table class="pr-mx">
-          <thead><tr><th>الموقع</th><th>نهاري</th><th>ليلي</th><th>التجهيز</th><th>الإشراف</th></tr></thead>
-          <tbody>
-            ${C.securityPosts.map(p => `<tr>
-              <td>${p.nameAr}</td>
-              <td>${p.day || "—"}</td>
-              <td class="${p.night ? "" : "off-td"}">${p.night || "خارج الخدمة"}</td>
-              <td>${p.equipment.map(e => C.equipmentTypes[e].ar).join("، ") || "—"}</td>
-              <td>${supervisorName(p.supervisor).replace("مشرف ", "").replace("القيادة المباشرة — ", "")}</td>
-            </tr>`).join("")}
-            <tr><td style="font-weight:700">الإجمالي</td><td style="font-weight:700">${t.day}</td><td style="font-weight:700">${t.night}</td><td colspan="2">${v.ok ? "✓ مطابق للقوة المعتمدة" : "⚠ راجع التوزيع"} — حضور يومي ${t.daily}</td></tr>
-          </tbody>
-        </table>
-        <div class="pr-h">نطاقات الإشراف — ${t.supPerShift} مشرفون لكل وردية</div>
-        <div class="pr-sups">
-          ${C.supervisors.map(s => `<div class="pr-sup" style="--sc:${s.color}"><b>${s.nameAr}</b><small>${s.coverage.join(" · ")}${s.mobility ? " — " + C.equipmentTypes[s.mobility].ar : ""}</small></div>`).join("")}
-        </div>
-        <div class="pr-h">القيادة</div>
-        <small style="font-size:8.6px;color:#444">مدير الأمن ← مدير العمليات ← 4 مشرفي قطاعات ← أفراد الأمن &nbsp;·&nbsp; دعم إداري: 2 شئون إدارية &nbsp;·&nbsp; غرفة مراقبة وعمليات على مدار الورديتين</small>
-      </div>
+    <table class="pr-mx">
+      <thead><tr><th style="width:24%">الموقع</th><th>الخدمة النهارية</th><th>الخدمة الليلية</th><th style="width:22%">التجهيز</th><th style="width:26%">المشرف المسؤول</th></tr></thead>
+      <tbody>
+        ${rows}
+        <tr class="ptot"><td>إجمالي أفراد الأمن</td><td>${t.day} / ${v.e.dayOfficers}</td><td>${t.night} / ${v.e.nightOfficers}</td>
+        <td colspan="2">${v.ok ? "✓ توزيع الخدمات مطابق للقوة المعتمدة — حضور يومي " + t.daily + " فرد" : "⚠ راجع التوزيع"}</td></tr>
+      </tbody>
+    </table>
+    <div class="pr-h">حصر التجهيزات</div>
+    <div class="pr-eqrow">
+      ${Object.keys(C.equipmentInventory).map(k => `<span class="pr-eq"><svg><use href="#${C.equipmentTypes[k].icon}"/></svg> ${C.equipmentTypes[k].ar} <b>${C.equipmentInventory[k]}</b></span>`).join("")}
+    </div>
+    <div class="pr-h">نطاقات الإشراف — ${t.supPerShift} مشرفون لكل خدمة · ${t.dailySup} حضور يومي</div>
+    <div class="pr-sups">
+      ${C.supervisors.map(sp => `
+        <div class="pr-sup" style="--sc:${sp.color}">
+          <b>${sp.nameAr}</b>
+          <span class="dty">${sp.duty}${sp.mobility ? " · " + C.equipmentTypes[sp.mobility].ar : ""}</span>
+          <span class="cov">${sp.coverage.join(" · ")}</span>
+        </div>`).join("")}
+    </div>
+    <div class="pr-h">القيادة والسيطرة</div>
+    <div class="pr-cmd">
+      مدير الأمن ← مدير العمليات ← 4 مشرفي قطاعات ← أفراد الأمن (${t.daily})
+      <small>الدعم الإداري: 2 شئون إدارية · غرفة مراقبة وعمليات تعمل نهاراً وليلاً</small>
     </div>
     <div class="pr-foot">
       <span>${C.meta.positionsNote}</span>
-      <span class="l lat">BAYMOUNT SECURITY OPERATIONS</span>
-    </div>`;
+      <span class="l lat">BAYMOUNT SECURITY OPERATIONS · ${C.meta.confidentialEn}</span>
+    </div>
+  </section>`;
 }
 function doPrint() { buildPrint(); setTimeout(() => window.print(), 60); }
 
@@ -1078,8 +1210,11 @@ function runIntro(skip) {
     setTimeout(() => camHome(true), 120);
     setTimeout(() => intro.remove(), 1100);
   };
+  /* enter ONLY on user action — a press anywhere, the button, or Enter */
   intro.addEventListener("click", enter);
-  setTimeout(enter, 4600);
+  document.addEventListener("keydown", function onK(e) {
+    if (e.key === "Enter" || e.key === " ") { document.removeEventListener("keydown", onK); enter(); }
+  });
 }
 
 /* ------------------------------------------------------------------ */

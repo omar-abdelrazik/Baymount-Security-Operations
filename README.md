@@ -63,4 +63,4 @@ After replacing the masterplan, walk the markers once in edit mode to re-align t
 
 ### Notes
 - Map positions are **approximate**, derived from the annotated aerial reference, and intentionally easy to adjust after site review.
-- Confidential — prepared for management review. البيانات وفق القوة المعتمدة: 24 فرد أمن حضور يومي (14 نهاري / 10 ليلي) + 8 مشرفين (4 لكل وردية).
+- Confidential — prepared for management review. البيانات وفق القوة المعتمدة: 24 فرد أمن حضور يومي (14 نهاري / 10 ليلي) + 8 مشرفين (4 لكل خدمة).

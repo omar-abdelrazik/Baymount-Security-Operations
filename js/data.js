@@ -6,7 +6,7 @@
    • x / y : موقع العلامة على المخطط كنسبة مئوية من عرض/ارتفاع الصورة
              (0,0) = أعلى يسار الصورة — قابلة للضبط بعد المعاينة الميدانية
              يمكن أيضاً استخدام وضع التحرير المخفي: Ctrl+Shift+E
-   • day / night : عدد أفراد الأمن في كل وردية (0 = خارج الخدمة)
+   • day / night : عدد أفراد الأمن في كل خدمة (0 = خارج الخدمة)
    • equipment  : مفاتيح من قائمة equipmentTypes بالأسفل
    • Totals are NEVER hardcoded in the UI — they are computed from this
      data and validated against shiftRules.expected automatically.
@@ -25,7 +25,7 @@ const BAYMOUNT_CONFIG = {
     planImage: "assets/masterplan.jpg",
     aerialImage: "assets/aerial.jpg",
     /* aspect ratio of the masterplan image (height / width) */
-    planAspect: 1983 / 1800,
+    planAspect: 1765 / 1674,
     positionsNote: "المواقع على المخطط تقريبية وقابلة للضبط من ملف الإعدادات أو وضع التحرير"
   },
 
@@ -44,7 +44,7 @@ const BAYMOUNT_CONFIG = {
       day:   { ar: "نهاري", en: "DAY SHIFT" },
       night: { ar: "ليلي",  en: "NIGHT SHIFT" }
     },
-    nightOffLabel: "غير مفعّل بالوردية الليلية",
+    nightOffLabel: "غير مفعّل بالخدمة الليلية",
     nightOffShort: "خارج الخدمة ليلاً",
     nightOffTitle: "خدمات خارج الخدمة ليلاً"
   },
@@ -86,42 +86,42 @@ const BAYMOUNT_CONFIG = {
   securityPosts: [
     { id: "gate1", nameAr: "مدخل 1", nameEn: "Gate 01",
       category: "entrance", group: "المداخل",
-      x: 83.0, y: 59.6, day: 1, night: 1,
+      x: 81.7, y: 65.8, day: 1, night: 1,
       equipment: ["radio"], supervisor: "sup2",
       aliases: ["بوابة 1", "الباب 1"],
       notes: "المدخل الشرقي على الطريق الرئيسي" },
 
     { id: "gate2", nameAr: "مدخل 2", nameEn: "Gate 02",
       category: "entrance", group: "المداخل",
-      x: 64.0, y: 58.2, day: 1, night: 1,
+      x: 61.3, y: 64.3, day: 1, night: 1,
       equipment: ["radio"], supervisor: "sup3",
       aliases: ["بوابة 2", "الباب 2"],
       notes: "ضمن نطاق مشرف المنطقة السكنية" },
 
     { id: "gate3", nameAr: "مدخل 3", nameEn: "Gate 03",
       category: "entrance", group: "المداخل",
-      x: 48.3, y: 56.4, day: 2, night: 1,
+      x: 44.4, y: 62.2, day: 2, night: 1,
       equipment: ["radio"], supervisor: "sup2",
       aliases: ["بوابة 3", "الباب 3"],
       notes: "فردان نهاراً وفرد ليلاً — جهاز لاسلكي واحد مخصص للنقطة" },
 
     { id: "gate4", nameAr: "مدخل 4", nameEn: "Gate 04 · Beach W",
       category: "entrance", group: "المداخل",
-      x: 48.5, y: 74.0, day: 1, night: 0,
+      x: 44.6, y: 82.0, day: 1, night: 0,
       equipment: ["radio"], supervisor: "sup2",
       aliases: ["بوابة 4", "الباب 4", "باب الشاطئ", "باب الشاطي", "الشاطئ"],
       notes: "بوابة الواجهة البحرية الغربية — خارج الخدمة ليلاً" },
 
     { id: "gate5", nameAr: "مدخل 5", nameEn: "Gate 05 · Beach E",
       category: "entrance", group: "المداخل",
-      x: 82.0, y: 74.3, day: 1, night: 0,
+      x: 80.6, y: 82.4, day: 1, night: 0,
       equipment: ["radio"], supervisor: "sup3",
       aliases: ["بوابة 5", "الباب 5"],
       notes: "بوابة الواجهة البحرية الشرقية — خارج الخدمة ليلاً · ضمن نطاق مشرف المنطقة السكنية" },
 
     { id: "svc-m34", nameAr: "خدمة المصاطب ‎3+4‎", nameEn: "Mastaba 3+4",
       category: "post", group: "المنطقة الإنشائية",
-      x: 78.5, y: 10.0, day: 2, night: 2,
+      x: 76.9, y: 10.1, day: 2, night: 2,
       equipment: [], supervisor: "sup1",
       covers: ["m3", "m4"],
       aliases: ["مصطبة 3", "مصطبة 4"],
@@ -129,7 +129,7 @@ const BAYMOUNT_CONFIG = {
 
     { id: "svc-m12", nameAr: "خدمة المصاطب ‎1+2‎", nameEn: "Mastaba 1+2",
       category: "post", group: "سكن الملاك",
-      x: 89.5, y: 22.5, day: 1, night: 1,
+      x: 88.7, y: 24.2, day: 1, night: 1,
       equipment: [], supervisor: "sup3",
       covers: ["m1", "m2"],
       aliases: ["مصطبة 1", "مصطبة 2", "المصاطب", "سكن الملاك"],
@@ -137,38 +137,38 @@ const BAYMOUNT_CONFIG = {
 
     { id: "housing1", nameAr: "سكن عمال 1", nameEn: "Workers Housing 01",
       category: "residential", group: "سكن العمال",
-      x: 41.5, y: 6.8, day: 1, night: 1,
+      x: 29.5, y: 13.2, day: 1, night: 1,
       equipment: [], supervisor: "sup4",
       aliases: ["سكني عمال 1", "سكن العمال"],
       notes: "أعلى منطقة مصطبة 6" },
 
     { id: "housing2", nameAr: "سكن عمال 2", nameEn: "Workers Housing 02",
       category: "residential", group: "سكن العمال",
-      x: 46.5, y: 4.8, day: 1, night: 1,
+      x: 38.5, y: 9.4, day: 1, night: 1,
       equipment: [], supervisor: "sup4",
       aliases: ["سكني عمال 2"],
       notes: "أعلى منطقة مصطبة 6" },
 
     { id: "admin", nameAr: "شئون إدارية وعهدة", nameEn: "Admin & Custody",
       category: "admin", group: "القيادة والمرافق",
-      x: 47.0, y: 26.0, day: 1, night: 0,
+      x: 43.0, y: 28.1, day: 1, night: 0,
       equipment: [], supervisor: "sup1",
       aliases: ["العهدة", "الشئون الادارية", "شؤون إدارية"],
       notes: "خارج الخدمة ليلاً" },
 
     { id: "control", nameAr: "غرفة المراقبة والعمليات", nameEn: "Control & Operations",
       category: "control", group: "القيادة والمرافق",
-      x: 25.0, y: 25.0, day: 1, night: 1,
+      x: 19.4, y: 27.0, day: 1, night: 1,
       equipment: [], supervisor: "ops",
       aliases: ["غرفة العمليات", "المراقبة", "العمليات", "غرفة مراقبة"],
-      notes: "تعمل على مدار الورديتين — نقطة القيادة والسيطرة للمنظومة" },
+      notes: "تعمل نهاراً وليلاً — نقطة القيادة والسيطرة للمنظومة" },
 
     { id: "offices", nameAr: "مكاتب الموظفين والمخازن", nameEn: "Offices & Warehouses",
       category: "warehouse", group: "القيادة والمرافق",
-      x: 35.0, y: 22.0, day: 1, night: 1,
+      x: 30.1, y: 23.6, day: 1, night: 1,
       equipment: [], supervisor: "sup1",
       aliases: ["المخازن", "مكاتب الموظفين", "المخزن"],
-      notes: "خدمة على مدار الورديتين" }
+      notes: "خدمة نهاراً وليلاً" }
   ],
 
   /* ------------------------------------------------------------------
@@ -176,19 +176,19 @@ const BAYMOUNT_CONFIG = {
      ------------------------------------------------------------------ */
   assets: [
     { id: "crusher", nameAr: "كسارة الحجارة", nameEn: "Stone Crusher",
-      type: "industrial", icon: "i-crusher", x: 53.5, y: 4.2, supervisor: "sup4",
+      type: "industrial", icon: "i-crusher", quietLabel: true, x: 50.5, y: 8.4, supervisor: "sup4",
       aliases: ["كسارة", "كساره", "الكسارة", "كسارة حجارة"],
       notes: "أعلى منطقة مصطبة 6 — ضمن نطاق مشرف سكن العمال والمناطق الجبلية · الموقع تقريبي" },
-    { id: "m1", nameAr: "مصطبة 1", type: "mastaba", zone: "سكني ملاك", x: 92.0, y: 26.0 },
-    { id: "m2", nameAr: "مصطبة 2", type: "mastaba", zone: "سكني ملاك", x: 87.0, y: 19.0 },
-    { id: "m3", nameAr: "مصطبة 3", type: "mastaba", zone: "إنشائية", x: 81.0, y: 14.0 },
-    { id: "m4", nameAr: "مصطبة 4", type: "mastaba", zone: "إنشائية", x: 76.0, y: 6.5 },
-    { id: "m5", nameAr: "مصطبة 5", type: "mastaba", zone: "إنشائية", x: 58.0, y: 9.0 },
-    { id: "m6", nameAr: "مصطبة 6", type: "mastaba", zone: "سكني عمال", x: 46.0, y: 10.5 }
+    { id: "m1", nameAr: "مصطبة 1", type: "mastaba", zone: "سكني ملاك", x: 91.4, y: 28.1 },
+    { id: "m2", nameAr: "مصطبة 2", type: "mastaba", zone: "سكني ملاك", x: 86.0, y: 20.2 },
+    { id: "m3", nameAr: "مصطبة 3", type: "mastaba", zone: "إنشائية", x: 79.6, y: 14.6 },
+    { id: "m4", nameAr: "مصطبة 4", type: "mastaba", zone: "إنشائية", x: 74.2, y: 6.2 },
+    { id: "m5", nameAr: "مصطبة 5", type: "mastaba", zone: "إنشائية", x: 54.8, y: 9.0 },
+    { id: "m6", nameAr: "مصطبة 6", type: "mastaba", zone: "سكني عمال", x: 44.5, y: 14.2 }
   ],
 
   /* ------------------------------------------------------------------
-     المشرفون — ٤ قطاعات إشراف ثابتة في الورديتين
+     المشرفون — ٤ قطاعات إشراف ثابتة نهاراً وليلاً
      polygon: حدود القطاع كنِسَب مئوية [x,y]
      ------------------------------------------------------------------ */
   supervisors: [
@@ -196,8 +196,8 @@ const BAYMOUNT_CONFIG = {
       nameAr: "مشرف المنطقة الإنشائية",
       nameEn: "Construction Sector",
       color: "#b8913f",
-      anchor: { x: 63.0, y: 15.0 },
-      polygon: [[32,27],[35,20],[41,13],[48,5.5],[55,2.5],[63,2],[72,2.8],[81,5],[88,10],[90,16],[86,21],[79,25],[72,20],[65,15.5],[56,15],[47,18],[39,25],[34,28.5]],
+      anchor: { x: 60.2, y: 15.7 },
+      polygon: [[26.9,29.2],[30.1,21.3],[36.6,13.5],[44.1,5.1],[51.6,1.7],[60.2,1.1],[69.9,2.0],[79.6,4.5],[87.1,10.1],[89.2,16.9],[84.9,22.5],[77.4,27.0],[69.9,21.3],[62.4,16.3],[52.7,15.7],[43.0,19.1],[34.4,27.0],[29.0,30.9]],
       coverage: ["مكاتب الموظفين", "المخازن", "مصطبة 3", "مصطبة 4", "مصطبة 5"],
       coverageIds: ["offices", "admin", "svc-m34", "m3", "m4", "m5"],
       equipment: [],
@@ -210,8 +210,8 @@ const BAYMOUNT_CONFIG = {
       nameAr: "مشرف البوابات الخارجية",
       nameEn: "External Gates Sector",
       color: "#d64a26",
-      anchor: { x: 28.0, y: 60.5 },
-      polygon: [[2,54.5],[20,54],[40,53.5],[50,53.2],[62,54],[76,54.5],[91,55],[93.5,62],[76,61.5],[60,62],[54,62.5],[55,70],[56,76.5],[43,76],[45,70],[47,62.5],[30,61.5],[10,61.5],[2,60.5]],
+      anchor: { x: 22.6, y: 66.9 },
+      polygon: [[0.0,60.1],[14.0,59.6],[35.5,59.0],[46.2,58.7],[59.1,59.6],[74.2,60.1],[90.3,60.7],[93.0,68.5],[74.2,68.0],[57.0,68.5],[50.5,69.1],[51.6,77.5],[52.7,84.8],[38.7,84.3],[40.9,77.5],[43.0,69.1],[24.7,68.0],[3.2,68.0],[0.0,66.9]],
       coverage: ["باب 1", "باب 3", "باب 4"],
       coverageIds: ["gate1", "gate3", "gate4"],
       equipment: ["radio", "flashlight"],
@@ -223,22 +223,22 @@ const BAYMOUNT_CONFIG = {
       nameAr: "مشرف المنطقة السكنية للملاك",
       nameEn: "Owners Residential Sector",
       color: "#587795",
-      anchor: { x: 46.0, y: 42.0 },
-      polygon: [[3,53],[3,34],[9,29],[18,30.5],[28,32],[38,31.5],[48,33],[58,30],[68,28.5],[79,28],[85,24],[90,17.5],[94,21],[93.5,30],[92.5,43],[88,51],[76,51],[62,52.5],[48,52.5],[34,53],[18,53.5]],
+      anchor: { x: 41.9, y: 46.1 },
+      polygon: [[0.0,58.4],[0.0,37.1],[2.2,31.5],[11.8,33.1],[22.6,34.8],[33.3,34.3],[44.1,36.0],[54.8,32.6],[65.6,30.9],[77.4,30.3],[83.9,25.8],[89.2,18.5],[93.5,22.5],[93.0,32.6],[91.9,47.2],[87.1,56.2],[74.2,56.2],[59.1,57.9],[44.1,57.9],[29.0,58.4],[11.8,59.0]],
       coverage: ["المصاطب ‎1+2‎ — الفلل والوحدات السكنية للملاك", "مدخل 2 ومدخل 5"],
       coverageIds: ["gate2", "gate5", "svc-m12", "m1", "m2"],
       equipment: ["scooter", "radio"],
       mobility: "scooter",
       route: "ownersLoop",
       duty: "دورية متحركة بالسكوتر داخل المنطقة السكنية للملاك",
-      brief: "دورية متحركة بالسكوتر داخل المنطقة السكنية للملاك على مدار الوردية — المصاطب ‎1+2‎ والفلل والوحدات السكنية، والمدخلان 2 و5" },
+      brief: "دورية متحركة بالسكوتر داخل المنطقة السكنية للملاك على مدار الخدمة — المصاطب ‎1+2‎ والفلل والوحدات السكنية، والمدخلان 2 و5" },
 
     { id: "sup4", code: "S4",
       nameAr: "مشرف سكن العمال والمناطق الجبلية",
       nameEn: "Workers & Mountain Sector",
       color: "#6c7f57",
-      anchor: { x: 21.0, y: 11.5 },
-      polygon: [[3,20],[3.5,9],[9,3],[18,1.5],[30,1.2],[40,1.8],[50,2.3],[56,4.5],[51,8.5],[46.5,12],[38,13],[29,14],[19,15.5],[9,18]],
+      anchor: { x: 15.1, y: 11.8 },
+      polygon: [[0.0,21.3],[0.0,9.0],[2.2,2.2],[11.8,0.6],[24.7,0.2],[35.5,0.9],[46.2,1.5],[52.7,3.9],[47.3,8.4],[42.5,12.4],[33.3,13.5],[23.7,14.6],[12.9,16.3],[2.2,19.1]],
       coverage: ["سكن عمال 1", "سكن عمال 2", "مصطبة 6 — سكني عمال", "كسارة الحجارة أعلى منطقة 6", "تزويد مولدات الكهرباء بالسولار — 16 مولد", "منطقة المدقات بالجبل"],
       coverageIds: ["housing1", "housing2", "m6", "crusher"],
       equipment: ["motorcycle", "radio", "flashlight"],
@@ -255,17 +255,17 @@ const BAYMOUNT_CONFIG = {
     ownersLoop: {
       labelAr: "نطاق حركة المشرف — سكوتر",
       closed: true,
-      points: [[12,50],[10,44],[14,38],[22,34.5],[30,36],[38,34],[46,36],[54,33.5],[62,35],[70,31.5],[78,30.5],[86,33],[90,39],[86,46],[78,48.5],[68,47.5],[58,50],[48,49.5],[38,51],[28,52],[20,52.3]]
+      points: [[5.4,55.1],[3.2,48.3],[7.5,41.6],[16.1,37.6],[24.7,39.3],[33.3,37.1],[41.9,39.3],[50.5,36.5],[59.1,38.2],[67.7,34.3],[76.3,33.1],[84.9,36.0],[89.2,42.7],[84.9,50.6],[76.3,53.4],[65.6,52.2],[54.8,55.1],[44.1,54.5],[33.3,56.2],[22.6,57.3],[14.0,57.6]]
     },
     mountainTrack: {
       labelAr: "نطاق حركة المشرف — موتوسيكل",
       closed: false,
-      points: [[6,19],[9,10],[14,6],[22,5],[30,6.5],[36,5.5],[41.5,6.8],[46.5,4.8],[53.5,4.2],[50,8.5],[46,10.5]]
+      points: [[1.5,20.2],[4.5,12.5],[10,8.5],[17,7.5],[24,9],[29.5,13.2],[38.5,9.4],[50.5,8.4],[53,11.5],[47,14]]
     },
     constructionTrack: {
       labelAr: "مداومة المرور — موتوسيكل",
       closed: false,
-      points: [[33,26],[38,19],[44,13],[52,9],[60,7],[68,6],[75,8],[80,12],[85,17],[89,23]]
+      points: [[28.0,28.1],[33.3,20.2],[39.8,13.5],[48.4,9.0],[57.0,6.7],[65.6,5.6],[73.1,7.9],[78.5,12.4],[83.9,18.0],[88.2,24.7]]
     }
   },
 
@@ -305,49 +305,49 @@ const BAYMOUNT_CONFIG = {
   presentation: [
     { id: "s1", num: "01", title: "نظرة عامة",
       body: "منظومة تأمين متكاملة لباي ماونت السخنة — تغطي المداخل الخمسة والمناطق السكنية والمنطقة الإنشائية والواجهة البحرية بقوة حضور يومية 24 فرد أمن و8 مشرفين.",
-      cam: { x: 50, y: 38, k: 1.0 }, shift: "day", focus: "services", aerial: true },
+      cam: { x: 46.2, y: 41.6, k: 1.0 }, shift: "day", focus: "services", aerial: true },
 
     { id: "s2", num: "02", title: "المداخل",
       body: "خمسة مداخل مؤمّنة بستة أفراد نهاراً — المدخل 3 بفردين نهاراً وفرد ليلاً، ومدخلا الشاطئ 4 و5 خارج الخدمة ليلاً.",
-      cam: { x: 62, y: 63, k: 1.45 }, shift: "day", focus: "services",
+      cam: { x: 59.1, y: 69.7, k: 1.45 }, shift: "day", focus: "services",
       pulse: ["gate1", "gate2", "gate3", "gate4", "gate5"] },
 
     { id: "s3", num: "03", title: "المنطقة الإنشائية",
-      body: "تأمين مكاتب الموظفين والمخازن على مدار الورديتين، وخدمة ثابتة بفردين للمصطبتين ‎3+4‎، مع مداومة مرور بالموتوسيكل لتنشيط التواجد الأمني.",
-      cam: { x: 66, y: 15, k: 1.55 }, shift: "day", focus: "services",
+      body: "تأمين مكاتب الموظفين والمخازن نهاراً وليلاً، وخدمة ثابتة بفردين للمصطبتين ‎3+4‎، مع مداومة مرور بالموتوسيكل لتنشيط التواجد الأمني.",
+      cam: { x: 63.4, y: 15.7, k: 1.55 }, shift: "day", focus: "services",
       layers: { routes: true }, pulse: ["svc-m34", "offices", "admin"] },
 
     { id: "s4", num: "04", title: "المناطق السكنية",
       body: "حماية دائمة لسكن العمال 1 و2 أعلى مصطبة 6، وخدمة المصاطب ‎1+2‎ — موقع سكن الملاك، ودورية متحركة بالسكوتر داخل المنطقة السكنية.",
-      cam: { x: 55, y: 20, k: 1.25 }, shift: "day", focus: "services",
+      cam: { x: 51.6, y: 21.3, k: 1.25 }, shift: "day", focus: "services",
       layers: { routes: true }, pulse: ["housing1", "housing2", "svc-m12"] },
 
     { id: "s5", num: "05", title: "القيادة والسيطرة",
       body: "غرفة مراقبة وعمليات تعمل نهاراً وليلاً — مراقبة الكاميرات، تلقي البلاغات، وقيادة الفرق الميدانية.",
-      cam: { x: 27, y: 26, k: 2.1 }, shift: "day", focus: "services",
+      cam: { x: 21.5, y: 28.1, k: 2.1 }, shift: "day", focus: "services",
       pulse: ["control"] },
 
     { id: "s6", num: "06", title: "المناطق الجبلية والمولدات",
       body: "مشرف متحرك بالموتوسيكل يغطي المدقات الجبلية وكسارة الحجارة، ويشرف على تزويد مولدات الكهرباء بالسولار — 16 مولد.",
-      cam: { x: 30, y: 9, k: 1.8 }, shift: "day", focus: "services",
+      cam: { x: 24.7, y: 9.0, k: 1.8 }, shift: "day", focus: "services",
       layers: { routes: true, mobility: true }, pulse: ["crusher", "housing1", "housing2"] },
 
     { id: "s7", num: "07", title: "التوزيع النهاري",
       body: "14 فرد أمن على 12 نقطة ونطاق خدمة، بإشراف 4 مشرفي قطاعات.",
-      cam: { x: 50, y: 38, k: 1.0 }, shift: "day", focus: "services", stat: "day" },
+      cam: { x: 46.2, y: 41.6, k: 1.0 }, shift: "day", focus: "services", stat: "day" },
 
     { id: "s8", num: "08", title: "التحول إلى التوزيع الليلي",
       body: "ثلاث خدمات تخرج من الخدمة ليلاً — مدخل 4 ومدخل 5 وشئون إدارية وعهدة — ويتحول المدخل 3 إلى فرد واحد: تنتقل القوة من 14 إلى 10 آلياً.",
-      cam: { x: 50, y: 38, k: 1.0 }, shift: "night", focus: "services", stat: "night",
+      cam: { x: 46.2, y: 41.6, k: 1.0 }, shift: "night", focus: "services", stat: "night",
       pulse: ["gate4", "gate5", "admin", "gate3"] },
 
     { id: "s9", num: "09", title: "نطاقات المشرفين",
-      body: "أربعة قطاعات إشراف ثابتة في الورديتين: المنطقة الإنشائية، البوابات الخارجية، سكن الملاك، وسكن العمال والمناطق الجبلية.",
-      cam: { x: 50, y: 34, k: 1.05 }, shift: "night", focus: "supervision" },
+      body: "أربعة قطاعات إشراف ثابتة نهاراً وليلاً: المنطقة الإنشائية، البوابات الخارجية، سكن الملاك، وسكن العمال والمناطق الجبلية.",
+      cam: { x: 46.2, y: 37.1, k: 1.05 }, shift: "night", focus: "supervision" },
 
     { id: "s10", num: "10", title: "الخلاصة التنفيذية",
       body: "",
-      cam: { x: 50, y: 38, k: 1.0 }, shift: "day", focus: "services", summary: true }
+      cam: { x: 46.2, y: 41.6, k: 1.0 }, shift: "day", focus: "services", summary: true }
   ],
 
   /* الطبقات الافتراضية عند الفتح */

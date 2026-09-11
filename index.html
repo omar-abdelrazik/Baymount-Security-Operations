@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
 <title>Baymount Security Operations — خطة التأمين وتوزيع الخدمات</title>
 <link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect width="24" height="24" rx="6" fill="%23181b20"/><path d="M12 4.5l5.5 2.3v4.4c0 3.6-2.3 6-5.5 7.3-3.2-1.3-5.5-3.7-5.5-7.3V6.8z" fill="none" stroke="%23d64a26" stroke-width="1.7"/></svg>'>
 <link rel="stylesheet" href="css/styles.css">
@@ -65,9 +65,9 @@
     <div class="intro-stats">
       <div class="istat"><b class="num" data-count="dailyOfficers">0</b><span>فرد أمن · قوة حضور يومية</span></div>
       <div class="istat"><b class="num" data-count="dailySupervisors">0</b><span>مشرفين · قوة حضور يومية</span></div>
-      <div class="istat hot"><b class="num" data-count="day">0</b><span>الوردية النهارية</span></div>
-      <div class="istat"><b class="num" data-count="night">0</b><span>الوردية الليلية</span></div>
-      <div class="istat"><b class="num" data-count="perShiftSup">0</b><span>مشرفين لكل وردية</span></div>
+      <div class="istat hot"><b class="num" data-count="day">0</b><span>الخدمة النهارية</span></div>
+      <div class="istat"><b class="num" data-count="night">0</b><span>الخدمة الليلية</span></div>
+      <div class="istat"><b class="num" data-count="perShiftSup">0</b><span>مشرفين لكل خدمة</span></div>
     </div>
     <div class="intro-foot">
       <button id="enterApp">دخول المنظومة <svg class="ic"><use href="#i-arr-l"/></svg></button>
@@ -99,7 +99,7 @@
     </div>
 
     <span class="tb-sp"></span>
-    <div id="shiftToggle" role="group" aria-label="الوردية">
+    <div id="shiftToggle" role="group" aria-label="الخدمة">
       <span class="thumb"></span>
       <button id="btnDay" class="active" aria-pressed="true"><svg class="ic"><use href="#i-sun"/></svg> نهاري <span class="cnt num" id="cntDay">–</span></button>
       <button id="btnNight" aria-pressed="false"><svg class="ic"><use href="#i-moon"/></svg> ليلي <span class="cnt num" id="cntNight">–</span></button>
@@ -186,7 +186,7 @@
       <div id="statusbar">
         <span class="vd" id="valState"><svg class="ic"><use href="#i-check"/></svg><span id="valText">…</span></span>
         <span class="sb-sep"></span>
-        <span class="vd" id="sbShiftWrap"><span id="sbShift">الوردية النهارية</span> · <b class="num" id="sbOfficers">–</b> فرد أمن · <b class="num" id="sbSup">–</b> مشرفين</span>
+        <span class="vd" id="sbShiftWrap"><span id="sbShift">الخدمة النهارية</span> · <b class="num" id="sbOfficers">–</b> فرد أمن · <b class="num" id="sbSup">–</b> مشرفين</span>
         <span class="sb-sep" id="sbSep2"></span>
         <span class="vd" id="sbDailyWrap">حضور يومي <b class="num" id="sbDaily">–</b> فرد · <b class="num" id="sbDailySup">–</b> مشرفين</span>
         <span id="posNote"></span>
@@ -200,7 +200,7 @@
   <div class="sheet-card">
     <div class="sheet-head">
       <svg class="ic"><use href="#i-grid"/></svg>
-      <div><div class="sheet-title">مصفوفة الانتشار الأمني</div><div class="sheet-sub">التوزيع التفصيلي للخدمات والتجهيزات على الورديتين</div></div>
+      <div><div class="sheet-title">مصفوفة الانتشار الأمني</div><div class="sheet-sub">التوزيع التفصيلي للخدمات والتجهيزات نهاراً وليلاً</div></div>
       <button class="dt-x" data-close="matrixSheet"><svg class="ic"><use href="#i-close"/></svg></button>
     </div>
     <div class="sheet-body" id="matrixBody"></div>
