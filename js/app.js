@@ -47,7 +47,11 @@ function renderValidation() {
   $("#sbDailySup").textContent = v.t.dailySup;
   $("#cntDay").textContent = v.t.day;
   $("#cntNight").textContent = v.t.night;
-  console.table({ "نهاري": v.t.day, "ليلي": v.t.night, "حضور يومي": v.t.daily, "مشرفون/وردية": v.t.supPerShift, "مطابق": v.ok });
+  /* Safari's download-preview exposes a stripped console — never assume console.table */
+  try {
+    const row = { "نهاري": v.t.day, "ليلي": v.t.night, "حضور يومي": v.t.daily, "مشرفون/وردية": v.t.supPerShift, "مطابق": v.ok };
+    (console.table ? console.table : console.log).call(console, row);
+  } catch (e) { /* non-essential */ }
   return v;
 }
 
@@ -202,11 +206,11 @@ function buildMarkers() {
   });
   /* assets */
   C.assets.forEach(a => {
-    if (a.type === "generator") {
-      const m = markerShell(a.x, a.y, "cat-asset cat-generator lbl-key", a.id);
+    if (a.type !== "mastaba") {
+      const m = markerShell(a.x, a.y, "cat-asset cat-industrial lbl-key", a.id);
       m.innerHTML = `
         <button class="m-body" aria-label="${a.nameAr}">
-          <span class="m-pin"><svg><use href="#i-gen"/></svg></span>
+          <span class="m-pin"><svg><use href="#${a.icon || "i-terrace"}"/></svg></span>
           <span class="m-label">${a.nameAr}</span>
         </button>`;
       m.querySelector(".m-body").addEventListener("click", e => { if (S.editing) return; e.stopPropagation(); selectAsset(a.id); });
@@ -238,6 +242,8 @@ function buildLayers() {
     wrap.appendChild(b);
   });
   $("#layersHead").addEventListener("click", () => $("#layersPanel").classList.toggle("closed"));
+  /* small screens open with the layers panel collapsed to keep the map clear */
+  if (window.innerWidth < 940) $("#layersPanel").classList.add("closed");
   applyLayers();
 }
 function setLayer(key, on) {
@@ -262,7 +268,7 @@ function buildLegend() {
     <div class="lg-row">${mini("i-house")} سكن عمال</div>
     <div class="lg-row">${mini("i-screens")} غرفة مراقبة وعمليات</div>
     <div class="lg-row">${mini("i-diamond", "dia")} مشرف قطاع</div>
-    <div class="lg-row">${mini("i-gen")} مولدات الكهرباء</div>
+    <div class="lg-row">${mini("i-crusher")} كسارة الحجارة</div>
     <div class="lg-h">الحالة</div>
     <div class="lg-row"><span class="lg-sym"><span class="mini" style="background:var(--accent)"><b style="font-size:9px">2</b></span></span> عدد الأفراد بالوردية</div>
     <div class="lg-row"><span class="lg-sym"><span class="mini" style="opacity:.4"><svg class="ic"><use href="#i-off"/></svg></span></span> ${C.shiftRules.nightOffShort}</div>
@@ -280,7 +286,10 @@ function buildLegend() {
 /* ------------------------------------------------------------------ */
 function computeFit() {
   const r = stage.getBoundingClientRect();
-  const padX = r.width < 900 ? 24 : 120, padT = 76, padB = 96;
+  const short = r.height < 520;
+  const padX = short ? 10 : r.width < 640 ? 14 : r.width < 900 ? 24 : 120;
+  const padT = short ? 8 : r.width < 640 ? 62 : 76;
+  const padB = short ? 8 : r.width < 640 ? 62 : 96;
   let h = r.height - padT - padB;
   let w = h / C.meta.planAspect;
   if (w > r.width - padX * 2) { w = r.width - padX * 2; h = w * C.meta.planAspect; }
@@ -295,7 +304,15 @@ function applyCam() {
   stage.dataset.zoom = S.cam.k > 2.1 ? "near" : S.cam.k > 1.32 ? "mid" : "far";
 }
 function camHome(animate) {
-  const target = { x: S.fit.bx, y: S.fit.by, k: 1 };
+  const r = stage.getBoundingClientRect();
+  let target;
+  if (r.height < 520 && r.width > r.height) {
+    /* short landscape screens: open zoomed to a readable width-filling view */
+    const k = clamp((r.width * 0.85) / S.fit.w, 1, 2.6);
+    target = { x: r.width / 2 - k * (S.fit.w * 0.5), y: r.height / 2 - k * (S.fit.h * 0.4), k };
+  } else {
+    target = { x: S.fit.bx, y: S.fit.by, k: 1 };
+  }
   animate ? camTo(target, 900) : Object.assign(S.cam, target);
   if (!animate) applyCam();
 }
@@ -463,6 +480,7 @@ function clearSectorFocus() {
   S.selSector = null;
   delete body.dataset.selsector;
   $$(".sector", overlay).forEach(g => g.classList.remove("hot", "dim"));
+  $$(".route", overlay).forEach(r => r.classList.remove("dim"));
   $$(".marker.insec").forEach(m => m.classList.remove("insec"));
   $("#g-routes").classList.toggle("on", !!S.layers.routes);
 }
@@ -473,6 +491,8 @@ function focusSector(supId) {
     g.classList.toggle("hot", g.dataset.id === supId);
     g.classList.toggle("dim", g.dataset.id !== supId);
   });
+  const spr = supById(supId);
+  $$(".route", overlay).forEach(r => r.classList.toggle("dim", !spr || spr.route !== r.dataset.id));
   $$(".marker.insec").forEach(m => m.classList.remove("insec"));
   const sp = supById(supId);
   const ids = new Set([supId, "chip-" + supId, ...(sp.coverageIds || [])]);
@@ -543,7 +563,7 @@ function renderDetail(sel) {
         <div class="dt-k">${icon("i-eye")} الحالة التشغيلية</div>
         <div class="dt-status">
           <span class="st-dot ${active ? "" : "off"}"></span>
-          <span>${both ? "نشط نهاراً وليلاً" : "خدمة نهارية فقط"}
+          <span>${both ? "نشط نهاراً وليلاً" : C.shiftRules.nightOffShort}
             <span class="sub">${active ? (S.shift === "day" ? "في الخدمة — الوردية النهارية" : "في الخدمة — الوردية الليلية") : C.shiftRules.nightOffLabel}</span>
           </span>
         </div>
@@ -607,7 +627,7 @@ function renderDetail(sel) {
   } else if (sel.type === "asset") {
     const a = assetById(sel.id);
     head.innerHTML = `
-      <span class="dt-cat">${icon("i-gen")} أصل تشغيلي</span>
+      <span class="dt-cat">${icon(a.icon || "i-terrace")} أصل تشغيلي</span>
       <div class="dt-name">${a.nameAr}</div>
       <div class="dt-en lat">${a.nameEn || ""}</div>`;
     bodyEl.innerHTML = `
@@ -628,7 +648,7 @@ function buildSearch() {
   const idx = [];
   C.securityPosts.forEach(p => idx.push({ type: "post", id: p.id, name: p.nameAr, extra: C.categories[p.category].ar, icon: C.categories[p.category].icon, keys: normAr([p.nameAr, p.nameEn, ...(p.aliases || [])].join(" ")) }));
   C.supervisors.forEach(s => idx.push({ type: "sup", id: s.id, name: s.nameAr, extra: "قطاع إشراف", icon: "i-diamond", keys: normAr([s.nameAr, s.code, ...(s.coverage || [])].join(" ")) }));
-  C.assets.forEach(a => idx.push({ type: "asset", id: a.id, name: a.nameAr, extra: a.type === "generator" ? "أصل تشغيلي" : "مصطبة", icon: a.type === "generator" ? "i-gen" : "i-terrace", keys: normAr([a.nameAr, ...(a.aliases || [])].join(" ")) }));
+  C.assets.forEach(a => idx.push({ type: "asset", id: a.id, name: a.nameAr, extra: a.type === "mastaba" ? "مصطبة" : "أصل تشغيلي", icon: a.type === "mastaba" ? "i-terrace" : (a.icon || "i-terrace"), keys: normAr([a.nameAr, ...(a.aliases || [])].join(" ")) }));
   const input = $("#searchInput"), res = $("#searchResults");
   function run() {
     const q = normAr(input.value.trim());
@@ -647,7 +667,7 @@ function buildSearch() {
     res.innerHTML = ""; input.value = "";
     if (h.type === "post") selectPost(h.id);
     else if (h.type === "sup") { if (S.focus !== "supervision") setFocus("supervision"); selectSupervisor(h.id); }
-    else if (h.type === "asset") { if (h.id.startsWith("m")) { flyTo(assetById(h.id).x, assetById(h.id).y, 2.2, 950); pulse([h.id]); } else selectAsset(h.id); }
+    else if (h.type === "asset") { const a = assetById(h.id); if (a.type === "mastaba") { flyTo(a.x, a.y, 2.2, 950); pulse([h.id]); } else selectAsset(h.id); }
   }
   input.addEventListener("input", run);
   input.addEventListener("keydown", e => {
@@ -671,14 +691,13 @@ function renderMatrix() {
   const groups = [...new Set(C.securityPosts.map(p => p.group))];
   let rows = "";
   groups.forEach(g => {
-    rows += `<tr class="grp"><td colspan="6">${g}</td></tr>`;
+    rows += `<tr class="grp"><td colspan="5">${g}</td></tr>`;
     C.securityPosts.filter(p => p.group === g).forEach(p => {
       const cat = C.categories[p.category];
       rows += `<tr>
         <td><span class="locname"><span class="lic"><svg><use href="#${cat.icon}"/></svg></span> ${p.nameAr}</span></td>
         <td>${p.day > 0 ? `<span class="okc">${icon("i-check")} <span class="num">${p.day}</span></span>` : `<span class="noc">—</span>`}</td>
         <td>${p.night > 0 ? `<span class="okc">${icon("i-check")} <span class="num">${p.night}</span></span>` : `<span class="noc">${icon("i-moon")} ${C.shiftRules.nightOffShort}</span>`}</td>
-        <td class="num" style="font-weight:700">${p.day}</td>
         <td><span class="eq">${p.equipment.length ? p.equipment.map(eqChip).join("") : "<span class='noc'>—</span>"}</span></td>
         <td>${supById(p.supervisor) ? `<span class="supcell"><span class="swb" style="background:${supById(p.supervisor).color}"></span>${supervisorName(p.supervisor)}</span>` : `<span class="supcell">${supervisorName(p.supervisor)}</span>`}</td>
       </tr>`;
@@ -696,7 +715,7 @@ function renderMatrix() {
   $("#matrixBody").innerHTML = `
     <table class="mx">
       <thead><tr>
-        <th style="width:26%">الموقع</th><th>الوردية النهارية</th><th>الوردية الليلية</th><th>الأفراد نهاراً</th><th style="width:18%">التجهيز</th><th style="width:22%">المشرف المسؤول</th>
+        <th style="width:27%">الموقع</th><th>الوردية النهارية</th><th>الوردية الليلية</th><th style="width:19%">التجهيز</th><th style="width:24%">المشرف المسؤول</th>
       </tr></thead>
       <tbody>
         ${rows}
@@ -704,7 +723,6 @@ function renderMatrix() {
           <td>إجمالي أفراد الأمن</td>
           <td><span class="num">${t.day}</span> / ${C.shiftRules.expected.dayOfficers}</td>
           <td><span class="num">${t.night}</span> / ${C.shiftRules.expected.nightOfficers}</td>
-          <td class="num">${t.day}</td>
           <td colspan="2">${validation().ok ? `<span class="okc">${icon("i-check")} توزيع مطابق للقوة المعتمدة — حضور يومي ${t.daily} فرد</span>` : `<span class="noc">${icon("i-warn")} راجع التوزيع</span>`}</td>
         </tr>
       </tbody>
@@ -722,9 +740,7 @@ function renderMatrix() {
 /* ------------------------------------------------------------------ */
 function renderMgmt() {
   const t = totals();
-  const eqCount = {};
-  C.securityPosts.forEach(p => p.equipment.forEach(e => eqCount[e] = (eqCount[e] || 0) + 1));
-  C.supervisors.forEach(s => { s.equipment.forEach(e => eqCount[e] = (eqCount[e] || 0) + 1); if (s.mobility && !s.equipment.includes(s.mobility)) eqCount[s.mobility] = (eqCount[s.mobility] || 0) + 1; });
+  const eqCount = C.equipmentInventory || {};
   const dir = C.managementTeam.find(m => m.id === "director");
   const ops = C.managementTeam.find(m => m.id === "ops");
   const ctrl = C.managementTeam.find(m => m.id === "controlRoom");
@@ -738,7 +754,6 @@ function renderMgmt() {
       <div class="mg-stat"><b class="num">${t.day}</b><span>الخدمة النهارية · فرد أمن</span></div>
       <div class="mg-stat"><b class="num">${t.night}</b><span>الخدمة الليلية · فرد أمن</span></div>
       <div class="mg-stat"><b class="num">${t.points}</b><span>نقطة / نطاق أمني</span></div>
-      <div class="mg-stat"><b class="num">${t.dayOnly.length}</b><span>خدمات نهارية فقط</span></div>
     </div>
 
     <div class="mg-h">${icon("i-org")} هيكل القيادة والسيطرة</div>
@@ -777,7 +792,7 @@ function renderMgmt() {
         ${C.supervisors.map(s => `
           <div class="org-sup" style="--sc:${s.color}">
             <b>${s.nameAr}</b>
-            <small>${s.mobility ? icon(C.equipmentTypes[s.mobility].icon) + " " + C.equipmentTypes[s.mobility].ar + " · " : ""}${supT.functions.slice(0, 2).join(" · ")}</small>
+            <small>${s.mobility ? icon(C.equipmentTypes[s.mobility].icon) + " " + C.equipmentTypes[s.mobility].ar + " · " : ""}${s.duty || supT.functions.slice(0, 2).join(" · ")}</small>
           </div>`).join("")}
       </div>
       <span class="org-link"></span>
@@ -793,12 +808,6 @@ function renderMgmt() {
         <div class="mg-h">${icon("i-radio")} حصر التجهيزات</div>
         <ul class="mg-list">
           ${Object.keys(eqCount).map(k => `<li>${icon(C.equipmentTypes[k].icon)} ${C.equipmentTypes[k].ar}<b class="num">${eqCount[k]}</b></li>`).join("")}
-        </ul>
-      </div>
-      <div>
-        <div class="mg-h">${icon("i-sun")} خدمات نهارية فقط</div>
-        <ul class="mg-list">
-          ${t.dayOnly.map(p => `<li>${icon(C.categories[p.category].icon)} ${p.nameAr}<span class="dayonly-tag">${C.shiftRules.nightOffShort}</span></li>`).join("")}
         </ul>
       </div>
     </div>`;
@@ -926,8 +935,8 @@ function buildPrint() {
       <span class="pm-pin ${p.category === "entrance" ? "ent" : ""} ${off ? "offp" : ""}">${off ? "×" : p[S.shift]}</span>
       <span class="pm-lbl">${p.nameAr}</span></span>`;
   }).join("");
-  const gens = C.assets.filter(a => a.type === "generator").map(a =>
-    `<span class="pm-marker" style="inset-inline-start:${100 - a.x}%;top:${a.y}%"><span class="pm-pin" style="background:#665">⚡</span><span class="pm-lbl">${a.nameAr}</span></span>`).join("");
+  const extras = C.assets.filter(a => a.type === "industrial").map(a =>
+    `<span class="pm-marker" style="inset-inline-start:${100 - a.x}%;top:${a.y}%"><span class="pm-pin" style="background:#6b5f3f">⛏</span><span class="pm-lbl">${a.nameAr}</span></span>`).join("");
   $("#printRoot").innerHTML = `
     <div class="pr-head">
       <span class="pr-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><use href="#i-shield"/></svg></span>
@@ -942,7 +951,7 @@ function buildPrint() {
       </div>
     </div>
     <div class="pr-grid">
-      <div class="pr-map"><img src="${C.meta.planImage}">${pm}${gens}</div>
+      <div class="pr-map"><img src="${C.meta.planImage}">${pm}${extras}</div>
       <div class="pr-side">
         <div class="pr-stats">
           <div class="pr-stat"><b class="num">${t.daily}</b><span>فرد أمن · حضور يومي</span></div>
@@ -1123,21 +1132,25 @@ function wire() {
 }
 
 function init() {
-  $("#plan").src = C.meta.planImage;
-  buildOverlay();
-  buildMarkers();
-  buildLayers();
-  buildLegend();
-  buildSearch();
-  wire();
-  initCamera();
-  renderValidation();
-  setShift("day", { force: true });
-  setView("2d");
-  setFocus("services");
+  /* hardened: whatever happens, the intro must never deadlock the app */
+  try {
+    $("#plan").src = C.meta.planImage;
+    buildOverlay();
+    buildMarkers();
+    buildLayers();
+    buildLegend();
+    buildSearch();
+    wire();
+    initCamera();
+    renderValidation();
+    setShift("day", { force: true });
+    setView("2d");
+    setFocus("services");
+  } catch (err) { try { console.error("BSO init:", err); } catch (e) {} }
   const hash = location.hash;
   const skip = hash === "#app" || hash === "#edit" || hash === "#present";
-  runIntro(skip);
+  try { runIntro(skip); }
+  catch (err) { const i = $("#intro"); if (i) i.remove(); $("#app").classList.add("on"); }
   if (hash === "#edit") setEdit(true);
   if (hash === "#present") setTimeout(startPresent, 400);
 }

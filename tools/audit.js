@@ -41,7 +41,7 @@ check("Daily supervisors / حضور المشرفين", dailySup, exp.dailySuperv
 
 const dayOnly = posts.filter(p => p.day > 0 && p.night === 0).map(p => p.nameAr);
 console.log("──────────────────────────────────────────────");
-console.log("  خدمات نهارية فقط (" + dayOnly.length + "):");
+console.log("  خدمات خارج الخدمة ليلاً (" + dayOnly.length + "):");
 dayOnly.forEach(n => console.log("   • " + n));
 console.log("  إجمالي نقاط الخدمة: " + posts.length);
 console.log("──────────────────────────────────────────────");

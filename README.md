@@ -41,6 +41,7 @@ Also in `js/data.js`:
 
 - `day` / `night` on each post = number of officers per shift (`0` = the service is off that shift and the UI fades it automatically).
 - `equipment` = keys from `equipmentTypes` (`radio`, `flashlight`, `scooter`, `motorcycle`).
+- `equipmentInventory` = الحصر الإجمالي المعتمد للتجهيزات (يظهر في لوحة الإدارة): 15 لاسلكي · 5 كشاف · 1 سكوتر · 2 موتوسيكل.
 - `supervisors[*].coverage`, `equipment`, `mobility` — supervisor sectors.
 - `shiftRules.expected` = the **approved force** (14 / 10 / 24, 4 supervisors per shift).
 
