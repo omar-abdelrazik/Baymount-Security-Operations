@@ -1,0 +1,13 @@
+# macOS
+.DS_Store
+._*
+
+# local/editor
+node_modules/
+*.zip
+.vercel/
+.idea/
+.vscode/
+
+# files Claude downloaded into this folder, not part of the project
+Claude outputs/

@@ -37,8 +37,8 @@ const BAYMOUNT_CONFIG = {
   shiftRules: {
     expected: {
       dayOfficers: 14,
-      nightOfficers: 10,
-      dailyOfficers: 24,          /* حضور يومي = نهاري + ليلي */
+      nightOfficers: 11,
+      dailyOfficers: 25,          /* حضور يومي = نهاري + ليلي */
       supervisorsPerShift: 4,
       dailySupervisors: 8
     },
@@ -109,10 +109,10 @@ const BAYMOUNT_CONFIG = {
 
     { id: "gate4", nameAr: "مدخل 4", nameEn: "Gate 04 · Beach W",
       category: "entrance", group: "المداخل",
-      x: 44.6, y: 82.0, day: 1, night: 0,
+      x: 44.6, y: 82.0, day: 1, night: 1,
       equipment: ["radio"], supervisor: "sup2",
       aliases: ["بوابة 4", "الباب 4", "باب الشاطئ", "باب الشاطي", "الشاطئ"],
-      notes: "بوابة الواجهة البحرية الغربية — خارج الخدمة ليلاً" },
+      notes: "بوابة الواجهة البحرية الغربية — خدمة نهاراً وليلاً" },
 
     { id: "gate5", nameAr: "مدخل 5", nameEn: "Gate 05 · Beach E",
       category: "entrance", group: "المداخل",
@@ -324,7 +324,7 @@ const BAYMOUNT_CONFIG = {
       cam: { x: 46.2, y: 41.6, k: 1.0 }, shift: "day", focus: "services", aerial: true },
 
     { id: "s2", num: "02", title: "المداخل",
-      body: "خمسة مداخل مؤمّنة بستة أفراد نهاراً — المدخل 3 بفردين نهاراً وفرد ليلاً، ومدخلا الشاطئ 4 و5 خارج الخدمة ليلاً.",
+      body: "خمسة مداخل مؤمّنة بستة أفراد نهاراً — المدخل 3 بفردين نهاراً وفرد ليلاً، ومدخل 5 خارج الخدمة ليلاً.",
       cam: { x: 59.1, y: 69.7, k: 1.45 }, shift: "day", focus: "services",
       pulse: ["gate1", "gate2", "gate3", "gate4", "gate5"] },
 
@@ -353,9 +353,9 @@ const BAYMOUNT_CONFIG = {
       cam: { x: 46.2, y: 41.6, k: 1.0 }, shift: "day", focus: "services", stat: "day" },
 
     { id: "s8", num: "08", title: "التحول إلى التوزيع الليلي",
-      body: "ثلاث خدمات تخرج من الخدمة ليلاً — مدخل 4 ومدخل 5 وشئون إدارية وعهدة — ويتحول المدخل 3 إلى فرد واحد: تنتقل القوة من 14 إلى 10 آلياً.",
+      body: "خدمتان تخرجان من الخدمة ليلاً — مدخل 5 وشئون إدارية وعهدة — ويتحول المدخل 3 إلى فرد واحد: تنتقل القوة من 14 إلى 11 آلياً.",
       cam: { x: 46.2, y: 41.6, k: 1.0 }, shift: "night", focus: "services", stat: "night",
-      pulse: ["gate4", "gate5", "admin", "gate3"] },
+      pulse: ["gate5", "admin", "gate3"] },
 
     { id: "s9", num: "09", title: "نطاقات المشرفين",
       body: "أربعة قطاعات إشراف ثابتة نهاراً وليلاً: المنطقة الإنشائية، البوابات الخارجية، سكن الملاك، وسكن العمال والمناطق الجبلية.",
